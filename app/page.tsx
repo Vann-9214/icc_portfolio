@@ -1,13 +1,14 @@
-import { Navigation } from '@/components/navigation'
-import { HeroSection } from '@/components/hero-section'
-import { AboutSection } from '@/components/about-section'
-import { TechStackMarquee } from '@/components/tech-stack-marquee'
-import { FeaturedProjects } from '@/components/featured-projects'
-import { Footer } from '@/components/footer'
+import { Navigation } from "@/components/navigation";
+import { HeroSection } from "@/components/hero-section";
+import { AboutSection } from "@/components/about-section";
+import { TechStackMarquee } from "@/components/tech-stack-marquee";
+import { FeaturedProjects } from "@/components/featured-projects";
+import { Footer } from "@/components/footer";
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <main className="relative">
+    // Removed 'bg-background' from this main tag so it's transparent!
+    <main className="flex min-h-screen flex-col relative transparent">
       <Navigation />
       <HeroSection />
       <AboutSection />
@@ -15,5 +16,5 @@ export default function HomePage() {
       <FeaturedProjects />
       <Footer />
     </main>
-  )
+  );
 }

@@ -49,7 +49,7 @@ export function FeaturedProjects() {
                   <div className="absolute inset-0 bg-foreground/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 text-area-blur rounded-xl p-5 -mx-1">
                   <span className="text-muted-foreground text-xs tracking-[0.2em] uppercase">{project.category}</span>
                   <h3 className="text-xl md:text-2xl text-foreground font-medium group-hover:text-foreground/80 transition-colors duration-300">
                     {project.title}
@@ -78,7 +78,7 @@ export function FeaturedProjects() {
           <div className="flex justify-center">
             <Link
               href="/projects"
-              className="inline-flex items-center gap-4 px-12 py-5 border border-border rounded-lg text-foreground hover:bg-muted/50 transition-colors duration-300 group"
+              className="inline-flex items-center gap-4 px-12 py-5 border border-border rounded-lg text-foreground hover:bg-white/5 transition-colors duration-300 group backdrop-blur-xl bg-white/[0.04]"
             >
               <span className="text-sm tracking-wide">View All Projects</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />

@@ -49,8 +49,10 @@
 }
 
 :root {
-  /* Dark minimal theme - near monochromatic */
-  --background: oklch(0.12 0 0);
+  /* Midnight Blue Background */
+  --background: oklch(0.25 0.08 255);
+
+  /* Original Dark Minimal Theme for all other components */
   --foreground: oklch(0.95 0 0);
   --card: oklch(0.15 0 0);
   --card-foreground: oklch(0.95 0 0);
@@ -61,7 +63,7 @@
   --secondary: oklch(0.2 0 0);
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.55 0 0);
+  --muted-foreground: oklch(0.68 0 0);
   --accent: oklch(0.25 0 0);
   --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -112,4 +114,9 @@
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+/* Frosted glass for text blocks — blur only, no dark tint or text outline */
+.text-area-blur {
+  @apply rounded-2xl bg-white/[0.04] backdrop-blur-2xl;
 }
