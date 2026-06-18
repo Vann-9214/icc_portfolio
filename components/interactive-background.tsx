@@ -25,6 +25,10 @@ export function InteractiveBackground() {
 
     let lastMouse = { x: -1000, y: -1000 };
 
+    // BUG FIX START: Kept only one trail state array to prevent conflicting logic
+    const activeTrail: { x: number; y: number; life: number }[] = [];
+    // BUG FIX END
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -56,6 +60,14 @@ export function InteractiveBackground() {
       iot: "rgba(0, 220, 130, ",
     };
 
+    // NEW ADDITION START
+    // Mutating the existing colors object to blend with the neutral white background
+    colors.software = "rgba(161, 161, 170, "; // Neutral zinc-400
+    colors.hardware = "rgba(212, 212, 216, "; // Neutral zinc-300
+    colors.gamedev = "rgba(113, 113, 122, ";  // Neutral zinc-500
+    colors.iot = "rgba(228, 228, 231, ";      // Neutral zinc-200
+    // NEW ADDITION END
+
     const codeSymbols = ["{ }", "</>", "=>", "[]", "&&", "||", "AI", "0x00"];
 
     type ParticleType = "hardware" | "software" | "gamedev" | "iot";
@@ -78,22 +90,36 @@ export function InteractiveBackground() {
       vy: number;
       isSnapped: boolean;
       pulseRate: number;
+      
+      // NEW ADDITION START
+      shockLevel: number;
+      wasJustShocked: boolean;
+      repelVX: number;
+      repelVY: number;
+      // NEW ADDITION END
 
       constructor(width: number, height: number) {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
         this.z = Math.random() * 1000 + 100;
-        this.baseSize = Math.random() * 10 + 6; // Smaller particles
-        this.speedX = (Math.random() - 0.5) * 0.5; // Much slower drift
+        this.baseSize = Math.random() * 10 + 6; 
+        this.speedX = (Math.random() - 0.5) * 0.5; 
         this.speedY = (Math.random() - 0.5) * 0.5;
-        this.speedZ = (Math.random() - 0.5) * 0.8; // Slower z movement
+        this.speedZ = (Math.random() - 0.5) * 0.8; 
         this.rotation = Math.random() * Math.PI * 2;
-        this.rotSpeed = (Math.random() - 0.5) * 0.008; // Slower idle spin
+        this.rotSpeed = (Math.random() - 0.5) * 0.008; 
         this.symbol =
           codeSymbols[Math.floor(Math.random() * codeSymbols.length)];
         this.offset = Math.random() * 100;
         this.isSnapped = false;
         this.pulseRate = 1;
+
+        // NEW ADDITION START
+        this.shockLevel = 0;
+        this.wasJustShocked = false;
+        this.repelVX = 0;
+        this.repelVY = 0;
+        // NEW ADDITION END
 
         const rand = Math.random();
         if (rand < 0.25) this.type = "hardware";
@@ -111,14 +137,22 @@ export function InteractiveBackground() {
         this.rotation += this.rotSpeed;
 
         const parallaxFactor = 500 / this.z;
-        // Gentler parallax response to mouse movement
         this.x -= mouse.vx * 0.02 * parallaxFactor;
         this.y -= mouse.vy * 0.02 * parallaxFactor;
 
-        if (this.x < -100) this.x = canvas!.width + 100;
-        if (this.x > canvas!.width + 100) this.x = -100;
-        if (this.y < -100) this.y = canvas!.height + 100;
-        if (this.y > canvas!.height + 100) this.y = -100;
+        const bound = this.baseSize * parallaxFactor + 20;
+        if (this.x < -bound) {
+          this.x = canvas!.width + bound;
+        } else if (this.x > canvas!.width + bound) {
+          this.x = -bound;
+        }
+
+        if (this.y < -bound) {
+          this.y = canvas!.height + bound;
+        } else if (this.y > canvas!.height + bound) {
+          this.y = -bound;
+        }
+        
         if (this.z > 1500 || this.z < 100) this.speedZ *= -1;
 
         const dx = mouse.x - this.x;
@@ -126,11 +160,52 @@ export function InteractiveBackground() {
         const distance = Math.sqrt(dx * dx + dy * dy);
         const inRange = distance < mouse.radius;
 
+        // BUG FIX START: Continuous drag on slow movement, massive throw on fast movement
+        if (inRange) {
+          this.shockLevel = 1.0;
+          this.wasJustShocked = true;
+
+          const mouseSpeed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
+          
+          // Drag effect: Decreased pull multiplier from 0.06 to 0.02 for a much lighter drag
+          if (mouseSpeed > 0.1 && mouseSpeed < 25 && mouse.x > -1000) {
+             // Increased buffer distance from 40 to 60 so they don't crowd the mouse as much
+             if (distance > 60) {
+                 this.x += dx * 0.02; // TWEAK THIS: Adjust drag strength (lower = weaker pull)
+                 this.y += dy * 0.02; // TWEAK THIS: Adjust drag strength (lower = weaker pull)
+             }
+             this.repelVX *= 0.5;
+             this.repelVY *= 0.5;
+          }
+        } else {
+          if (this.wasJustShocked) {
+             const mouseSpeed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
+             // Hover out: Reduced the blow away multiplier and max force
+             if (mouseSpeed >= 25) {
+               const angle = Math.atan2(-dy, -dx);
+               // TWEAK THIS: Change 0.8 (speed multiplier) and 35 (max speed limit) to adjust the throw
+               const blowForce = Math.min(mouseSpeed * 0.8, 35); 
+               this.repelVX = Math.cos(angle) * blowForce; 
+               this.repelVY = Math.sin(angle) * blowForce;
+             }
+             this.wasJustShocked = false;
+          }
+          if (this.shockLevel > 0) {
+             this.shockLevel -= 0.025; 
+          }
+        }
+        
+        // Apply velocity and friction
+        this.x += this.repelVX;
+        this.y += this.repelVY;
+        this.repelVX *= 0.92; 
+        this.repelVY *= 0.92;
+        // BUG FIX END
+
         if (this.type === "software") {
           if (inRange) {
             const angle = Math.atan2(dy, dx);
             const force = 1 - distance / mouse.radius;
-            // Gentler orbital nudge
             this.x +=
               Math.cos(angle + Math.PI / 2) * force * 3 * parallaxFactor;
             this.y +=
@@ -152,7 +227,6 @@ export function InteractiveBackground() {
             const relY = this.y - mouse.y;
             const targetX = mouse.x + Math.round(relX / gridSize) * gridSize;
             const targetY = mouse.y + Math.round(relY / gridSize) * gridSize;
-            // Slower, smoother snap
             this.x += (targetX - this.x) * 0.06;
             this.y += (targetY - this.y) * 0.06;
             this.isSnapped =
@@ -166,11 +240,9 @@ export function InteractiveBackground() {
           if (inRange) {
             const force = (mouse.radius - distance) / mouse.radius;
             const angle = Math.atan2(dy, dx);
-            // Lighter push
             this.vx -= Math.cos(angle) * force * 4 * parallaxFactor;
             this.vy -= Math.sin(angle) * force * 4 * parallaxFactor;
           }
-          // Stronger damping — settles faster
           this.vx *= 0.88;
           this.vy *= 0.88;
           this.vx += (this.speedX - this.vx) * 0.04;
@@ -182,7 +254,6 @@ export function InteractiveBackground() {
             const force = (mouse.radius - distance) / mouse.radius;
             this.x -= (dx / (distance || 1)) * force * 3 * parallaxFactor;
             this.y -= (dy / (distance || 1)) * force * 3 * parallaxFactor;
-            // Max 3x pulse speed instead of 5x
             this.pulseRate = 1 + force * 2;
           } else {
             this.pulseRate += (1 - this.pulseRate) * 0.03;
@@ -195,7 +266,6 @@ export function InteractiveBackground() {
       draw(ctx: CanvasRenderingContext2D) {
         const scale = 500 / this.z;
         const size = this.baseSize * scale;
-        // Lower base opacity ceiling
         const baseOpacity = Math.min(0.4, Math.max(0.05, 0.45 - this.z / 2000));
 
         const dx = mouse.x - this.x;
@@ -209,12 +279,37 @@ export function InteractiveBackground() {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
 
-        // Softer glow
+        // BUG FIX START: Handle shock color override and electric arc
+        let currentPrefix = this.colorPrefix;
+        let currentOpacity = opacity;
+        
+        if (this.shockLevel > 0) {
+          currentPrefix = "rgba(15, 66, 169, "; // Turns to primary blue when shocked
+          currentOpacity = Math.max(opacity, this.shockLevel * 0.9);
+          
+          // Draw electrical arc connecting to mouse while in range
+          if (this.shockLevel === 1.0 && mouse.x > -1000 && Math.random() > 0.4) {
+             ctx.save();
+             ctx.rotate(-this.rotation); 
+             ctx.beginPath();
+             ctx.moveTo(0, 0);
+             const midX = dx * 0.5 + (Math.random() - 0.5) * 40;
+             const midY = dy * 0.5 + (Math.random() - 0.5) * 40;
+             ctx.lineTo(midX, midY);
+             ctx.lineTo(dx, dy);
+             ctx.strokeStyle = `rgba(15, 66, 169, ${Math.random() * 0.8})`;
+             ctx.lineWidth = 1.5;
+             ctx.stroke();
+             ctx.restore();
+          }
+        }
+
         ctx.shadowBlur = 8 * scale;
-        ctx.shadowColor = this.colorPrefix + opacity * 0.6 + ")";
-        ctx.strokeStyle = this.colorPrefix + opacity + ")";
-        ctx.fillStyle = this.colorPrefix + opacity + ")";
+        ctx.shadowColor = currentPrefix + currentOpacity * 0.6 + ")";
+        ctx.strokeStyle = currentPrefix + currentOpacity + ")";
+        ctx.fillStyle = currentPrefix + currentOpacity + ")";
         ctx.lineWidth = 1.5 * scale;
+        // BUG FIX END
 
         if (this.type === "hardware") {
           ctx.beginPath();
@@ -246,7 +341,7 @@ export function InteractiveBackground() {
           ctx.fillText(this.symbol, 0, 0);
         } else if (this.type === "gamedev") {
           const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-          const jiggle = Math.min(speed * 0.025, 0.2); // Less exaggerated jiggle
+          const jiggle = Math.min(speed * 0.025, 0.2); 
           const s = size * (1 + jiggle);
           ctx.beginPath();
           ctx.moveTo(0, -s);
@@ -289,8 +384,7 @@ export function InteractiveBackground() {
 
     const initParticles = () => {
       particles = [];
-      // Fewer particles
-      const count = (window.innerWidth * window.innerHeight) / 30000;
+      const count = (window.innerWidth * window.innerHeight) / 25000;
       for (let i = 0; i < count; i++) {
         particles.push(new Particle(canvas.width, canvas.height));
       }
@@ -402,6 +496,81 @@ export function InteractiveBackground() {
           }
         }
       }
+
+      // BUG FIX START: Electric meteor burst (active only when moving, fast expanding jagged rings)
+      const isMoving = Math.abs(mouse.vx) > 0.5 || Math.abs(mouse.vy) > 0.5;
+
+      if (mouse.x > -1000 && isMoving) {
+        const lastPoint = activeTrail[activeTrail.length - 1];
+        const distance = lastPoint ? Math.sqrt(Math.pow(mouse.x - lastPoint.x, 2) + Math.pow(mouse.y - lastPoint.y, 2)) : 20;
+
+        if (distance > 12) {
+          activeTrail.push({ x: mouse.x, y: mouse.y, life: 1.0 });
+        }
+      }
+
+      for (let i = activeTrail.length - 1; i >= 0; i--) {
+        activeTrail[i].life -= 0.08; 
+        if (activeTrail[i].life <= 0) {
+          activeTrail.splice(i, 1);
+        }
+      }
+
+      if (activeTrail.length > 0) {
+        ctx.save();
+
+        for (let i = 0; i < activeTrail.length; i++) {
+          const pt = activeTrail[i];
+          const intensity = pt.life;
+          const progress = 1 - pt.life; 
+
+          const radius = 2 + progress * 35; 
+
+          // 1. Electric jagged field outline (Primary Palette: #0F42A9)
+          ctx.beginPath();
+          const segments = 12; // Enough to form a circle, low enough to look jagged
+          for (let j = 0; j <= segments; j++) {
+            const angle = (j / segments) * Math.PI * 2;
+            // Heavy random jitter makes it an electric field shape rather than a perfect round circle
+            const jitter = (Math.random() - 0.5) * 16 * intensity;
+            const r = radius + jitter;
+            const px = pt.x + Math.cos(angle) * r;
+            const py = pt.y + Math.sin(angle) * r;
+            
+            if (j === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = `rgba(15, 66, 169, ${intensity})`;
+          ctx.strokeStyle = `rgba(15, 66, 169, ${intensity * 0.5})`;
+          ctx.lineWidth = 1 + intensity * 2;
+          ctx.stroke();
+
+          // 2. Inner core field (Secondary Palette: #243B69)
+          ctx.beginPath();
+          const coreSegments = 8;
+          const coreRadius = Math.max(0.1, radius * 0.25);
+          for (let j = 0; j <= coreSegments; j++) {
+            const angle = (j / coreSegments) * Math.PI * 2;
+            const coreJitter = (Math.random() - 0.5) * 8 * intensity;
+            const r = coreRadius + coreJitter;
+            const px = pt.x + Math.cos(angle) * r;
+            const py = pt.y + Math.sin(angle) * r;
+            
+            if (j === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          
+          ctx.fillStyle = `rgba(36, 59, 105, ${Math.max(0, intensity - 0.2) * 0.3})`;
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+      // BUG FIX END
 
       mouse.vx *= 0.88;
       mouse.vy *= 0.88;
