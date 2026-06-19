@@ -9,26 +9,26 @@ const SPECIALTIES = [
   {
     label: "Hardware",
     icon: Cpu,
-    style: "text-purple-400 border-purple-400/25 bg-purple-400/8",
-    dot: "bg-purple-400",
+    style: "text-amber-700 border-amber-700/30 bg-amber-700/10",
+    dot: "bg-amber-700",
   },
   {
     label: "Software",
     icon: Code2,
-    style: "text-cyan-400 border-cyan-400/25 bg-cyan-400/8",
-    dot: "bg-cyan-400",
+    style: "text-blue-700 border-blue-700/30 bg-blue-700/10",
+    dot: "bg-blue-700",
   },
   {
     label: "Game Dev",
     icon: Gamepad2,
-    style: "text-rose-400 border-rose-400/25 bg-rose-400/8",
-    dot: "bg-rose-400",
+    style: "text-purple-700 border-purple-700/30 bg-purple-700/10",
+    dot: "bg-purple-700",
   },
   {
     label: "IoT",
     icon: Wifi,
-    style: "text-emerald-400 border-emerald-400/25 bg-emerald-400/8",
-    dot: "bg-emerald-400",
+    style: "text-teal-700 border-teal-700/30 bg-teal-700/10",
+    dot: "bg-teal-700",
   },
 ];
 
@@ -72,51 +72,50 @@ export function HeroSection() {
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 pt-20 pb-16 bg-transparent overflow-hidden">
       <div className="w-full max-w-6xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
-          {/* ── Left Column ── */}
           <motion.div
+            /* ── Left Column ── */
             variants={stagger.container}
             initial="hidden"
             animate="show"
-            className="space-y-7 order-2 lg:order-1 select-none"
+            className="relative space-y-7 order-2 lg:order-1 select-none"
           >
-            {/* Available badge */}
-            <motion.div variants={stagger.item}>
-              <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/[0.07] text-emerald-400 text-xs font-mono tracking-widest uppercase select-none">
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                </span>
-                Available for opportunities
-              </span>
-            </motion.div>
+            <div
+              /* Soft glow behind left column — filter:blur on own pixels, no hard clip edge */
+              className="absolute pointer-events-none -z-10"
+              style={{
+                inset: "-80px -100px",
+                background:
+                  "radial-gradient(ellipse 70% 75% at 42% 48%, rgba(255,255,255,1) 25%, rgba(255,255,255,0.7) 55%, transparent 100%)",
+                filter: "blur(18px)",
+              }}
+            />
 
-            {/* Name + role */}
-            <motion.div variants={stagger.item} className="space-y-3">
+            <motion.div /* Name + role */ variants={stagger.item} className="space-y-3">
               <h1 className="text-4xl md:text-5xl xl:text-6xl font-serif leading-[1.05] tracking-tight">
-                <span className="text-foreground">Ivan Clement</span>
+                <span /* COLOR UPDATE: Applied primary orange */ className="text-primary-base">Ivan Clement</span>
                 <br />
-                <span className="text-foreground/35">Cañete</span>
+                <span /* COLOR UPDATE: Applied complementary dark blue */ className="text-primary-secondary">Cañete</span>
               </h1>
-
               <div className="flex items-center gap-3 pt-1">
-                <span className="block h-px w-6 bg-primary/50 shrink-0" />
-                <p className="text-xs font-mono tracking-[0.2em] text-primary uppercase">
+                <span /* COLOR UPDATE: Switched to neutral black */ className="block h-px w-6 bg-neutral-base shrink-0" />
+                <p /* COLOR UPDATE: Switched to neutral black */ className="text-xs font-mono tracking-[0.2em] text-neutral-base uppercase">
                   Computer Engineering Student
                 </p>
               </div>
             </motion.div>
 
-            {/* Description */}
             <motion.p
+              /* Description */
+              /* COLOR UPDATE: Switched description text to neutral black */
               variants={stagger.item}
-              className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-[42ch]"
+              className="text-neutral-base text-base md:text-lg leading-relaxed max-w-[42ch]"
             >
               Building complex systems from the ground up — engineering
               everything from physical circuits to polished web interfaces.
             </motion.p>
 
-            {/* Specialty pills */}
             <motion.div
+              /* Specialty pills */
               variants={stagger.item}
               className="flex flex-wrap gap-2"
             >
@@ -131,8 +130,7 @@ export function HeroSection() {
               ))}
             </motion.div>
 
-            {/* Divider */}
-            <motion.div variants={stagger.item} className="overflow-hidden">
+            <motion.div /* Divider */ variants={stagger.item} className="overflow-hidden">
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
@@ -146,25 +144,27 @@ export function HeroSection() {
               />
             </motion.div>
 
-            {/* Action Buttons */}
             <motion.div
+              /* Action Buttons */
               variants={stagger.item}
               className="flex flex-wrap gap-3"
             >
               <a
+                /* COLOR UPDATE: Switched button text to neutral black */
                 href="https://github.com/Vann-9214"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2.5 px-5 py-3 border border-border rounded-lg text-foreground text-sm hover:border-white/25 hover:bg-white/[0.04] transition-all duration-200 backdrop-blur-xl bg-white/[0.03]"
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:border-neutral-base/30 hover:bg-neutral-base/[0.06] hover:shadow-sm active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04]"
               >
                 <GitHubLogoIcon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                GitHub
+                @Vann-9214
               </a>
               <a
+                /* COLOR UPDATE: Switched button text to neutral black */
                 href="https://www.linkedin.com/in/ivan-canete/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2.5 px-5 py-3 border border-border rounded-lg text-foreground text-sm hover:border-white/25 hover:bg-white/[0.04] transition-all duration-200 backdrop-blur-xl bg-white/[0.03]"
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:border-neutral-base/30 hover:bg-neutral-base/[0.06] hover:shadow-sm active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04]"
               >
                 <LinkedInLogoIcon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                 LinkedIn
@@ -172,7 +172,7 @@ export function HeroSection() {
               <a
                 href="/Ivan Cañete, Resume.pdf"
                 download
-                className="group inline-flex items-center gap-2.5 px-6 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-primary/20"
+                className="group inline-flex items-center gap-2.5 px-6 py-2.5 bg-neutral-base text-white rounded-full text-sm font-medium hover:bg-orange-500 active:bg-orange-600 active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg shadow-neutral-base/20 hover:shadow-orange-500/25"
               >
                 <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform duration-200" />
                 Resume
@@ -180,8 +180,8 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* ── Right Column — Profile Card ── */}
           <motion.div
+            /* ── Right Column — Profile Card ── */
             ref={cardRef}
             initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -196,8 +196,7 @@ export function HeroSection() {
             style={{ perspective: "1000px" }}
             className="relative aspect-square w-full max-w-sm lg:max-w-none mx-auto order-1 lg:order-2 cursor-pointer select-none"
           >
-            {/* Tech-bracket corner accents */}
-            {[
+            {[ /* Tech-bracket corner accents */
               "top-0 left-0 border-t border-l rounded-tl-md",
               "top-0 right-0 border-t border-r rounded-tr-md",
               "bottom-0 left-0 border-b border-l rounded-bl-md",
@@ -210,8 +209,8 @@ export function HeroSection() {
               />
             ))}
 
-            {/* Tilt wrapper */}
             <div
+              /* Tilt wrapper */
               style={{
                 width: "100%",
                 height: "100%",
@@ -223,25 +222,29 @@ export function HeroSection() {
                 position: "relative",
               }}
             >
-              {/* Offset decorative card */}
               <div
+                /* Offset decorative card */
                 style={{ transformStyle: "preserve-3d" }}
-                className="absolute inset-0 bg-zinc-900 rounded-3xl rotate-[3deg] opacity-50"
+                /* BUG FIX START: Changed offset card background from black (zinc-900) to primary-secondary */
+                className="absolute inset-0 bg-neutral-base rounded-3xl rotate-[3deg] opacity-50"
+                /* BUG FIX END */
               />
 
-              {/* Main card surface */}
               <div
-                className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl flex items-end justify-center"
+                /* Main card surface */
+                /* BUG FIX START: Added bg-primary-secondary class to replace the hardcoded black gradient */
+                className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl flex items-end justify-center bg-neutral-base"
+                /* BUG FIX END */
                 style={{
-                  background:
-                    "linear-gradient(160deg, #18181b 0%, #0f0f10 100%)",
+                  /* BUG FIX START: Removed the hardcoded black linear-gradient background */
                   border: "1px solid rgba(255,255,255,0.08)",
                   transformStyle: "preserve-3d",
                   padding: "4rem 2rem 0",
+                  /* BUG FIX END */
                 }}
               >
-                {/* Top edge shimmer */}
                 <div
+                  /* Top edge shimmer */
                   className="absolute top-0 inset-x-0 h-px pointer-events-none"
                   style={{
                     background:
@@ -249,8 +252,8 @@ export function HeroSection() {
                   }}
                 />
 
-                {/* Ambient color blobs inside card */}
                 <div
+                  /* Ambient color blobs inside card */
                   className="absolute top-1/4 -right-10 w-48 h-48 rounded-full pointer-events-none"
                   style={{
                     background:
@@ -267,8 +270,8 @@ export function HeroSection() {
                   }}
                 />
 
-                {/* Glare */}
                 <div
+                  /* Glare */
                   style={{
                     position: "absolute",
                     inset: 0,
@@ -282,8 +285,8 @@ export function HeroSection() {
                   }}
                 />
 
-                {/* Profile image */}
                 <img
+                  /* Profile image */
                   src="/Profile.svg"
                   alt="Ivan Clement P. Cañete"
                   className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-2xl z-0"
@@ -295,12 +298,13 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <motion.div
+        /* Scroll indicator */
+        /* COLOR UPDATE: Switched indicator text to neutral black with an opacity modifier */
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1.4 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground/30 pointer-events-none"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-neutral-base/60 pointer-events-none"
       >
         <span className="text-[10px] font-mono tracking-[0.25em] uppercase">
           Scroll

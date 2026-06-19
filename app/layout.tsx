@@ -20,7 +20,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Ivan Clement P. Cañete | Full Stack Developer",
+  title: "ICC Portfolio",
   description:
     "I build systems that bridge the screen and the physical world. Full Stack Developer specializing in software architecture, AI integration, and robotics.",
   generator: "v0.app",
