@@ -6,7 +6,10 @@ import { Mail } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="py-24 md:py-32 px-6 md:px-12 lg:px-24 border-t border-border">
+    <footer
+      id="contact"
+      className="py-24 md:py-32 px-6 md:px-12 lg:px-24 border-t border-border"
+    >
       <div className="w-full max-w-7xl mx-auto flex flex-col gap-16 md:gap-24">
         <FadeInOnScroll>
           <div className="flex flex-col md:flex-row justify-between items-start gap-12">

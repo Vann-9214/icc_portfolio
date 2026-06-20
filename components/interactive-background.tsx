@@ -64,8 +64,8 @@ export function InteractiveBackground() {
     // Mutating the existing colors object to blend with the neutral white background
     colors.software = "rgba(161, 161, 170, "; // Neutral zinc-400
     colors.hardware = "rgba(212, 212, 216, "; // Neutral zinc-300
-    colors.gamedev = "rgba(113, 113, 122, ";  // Neutral zinc-500
-    colors.iot = "rgba(228, 228, 231, ";      // Neutral zinc-200
+    colors.gamedev = "rgba(113, 113, 122, "; // Neutral zinc-500
+    colors.iot = "rgba(228, 228, 231, "; // Neutral zinc-200
     // NEW ADDITION END
 
     const codeSymbols = ["{ }", "</>", "=>", "[]", "&&", "||", "AI", "0x00"];
@@ -90,7 +90,7 @@ export function InteractiveBackground() {
       vy: number;
       isSnapped: boolean;
       pulseRate: number;
-      
+
       // NEW ADDITION START
       shockLevel: number;
       wasJustShocked: boolean;
@@ -102,12 +102,12 @@ export function InteractiveBackground() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
         this.z = Math.random() * 1000 + 100;
-        this.baseSize = Math.random() * 10 + 6; 
-        this.speedX = (Math.random() - 0.5) * 0.5; 
+        this.baseSize = Math.random() * 10 + 6;
+        this.speedX = (Math.random() - 0.5) * 0.5;
         this.speedY = (Math.random() - 0.5) * 0.5;
-        this.speedZ = (Math.random() - 0.5) * 0.8; 
+        this.speedZ = (Math.random() - 0.5) * 0.8;
         this.rotation = Math.random() * Math.PI * 2;
-        this.rotSpeed = (Math.random() - 0.5) * 0.008; 
+        this.rotSpeed = (Math.random() - 0.5) * 0.008;
         this.symbol =
           codeSymbols[Math.floor(Math.random() * codeSymbols.length)];
         this.offset = Math.random() * 100;
@@ -152,7 +152,7 @@ export function InteractiveBackground() {
         } else if (this.y > canvas!.height + bound) {
           this.y = -bound;
         }
-        
+
         if (this.z > 1500 || this.z < 100) this.speedZ *= -1;
 
         const dx = mouse.x - this.x;
@@ -165,40 +165,44 @@ export function InteractiveBackground() {
           this.shockLevel = 1.0;
           this.wasJustShocked = true;
 
-          const mouseSpeed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
-          
+          const mouseSpeed = Math.sqrt(
+            mouse.vx * mouse.vx + mouse.vy * mouse.vy,
+          );
+
           // Drag effect: Decreased pull multiplier from 0.06 to 0.02 for a much lighter drag
           if (mouseSpeed > 0.1 && mouseSpeed < 25 && mouse.x > -1000) {
-             // Increased buffer distance from 40 to 60 so they don't crowd the mouse as much
-             if (distance > 60) {
-                 this.x += dx * 0.02; // TWEAK THIS: Adjust drag strength (lower = weaker pull)
-                 this.y += dy * 0.02; // TWEAK THIS: Adjust drag strength (lower = weaker pull)
-             }
-             this.repelVX *= 0.5;
-             this.repelVY *= 0.5;
+            // Increased buffer distance from 40 to 60 so they don't crowd the mouse as much
+            if (distance > 60) {
+              this.x += dx * 0.02; // TWEAK THIS: Adjust drag strength (lower = weaker pull)
+              this.y += dy * 0.02; // TWEAK THIS: Adjust drag strength (lower = weaker pull)
+            }
+            this.repelVX *= 0.5;
+            this.repelVY *= 0.5;
           }
         } else {
           if (this.wasJustShocked) {
-             const mouseSpeed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
-             // Hover out: Reduced the blow away multiplier and max force
-             if (mouseSpeed >= 25) {
-               const angle = Math.atan2(-dy, -dx);
-               // TWEAK THIS: Change 0.8 (speed multiplier) and 35 (max speed limit) to adjust the throw
-               const blowForce = Math.min(mouseSpeed * 0.8, 35); 
-               this.repelVX = Math.cos(angle) * blowForce; 
-               this.repelVY = Math.sin(angle) * blowForce;
-             }
-             this.wasJustShocked = false;
+            const mouseSpeed = Math.sqrt(
+              mouse.vx * mouse.vx + mouse.vy * mouse.vy,
+            );
+            // Hover out: Reduced the blow away multiplier and max force
+            if (mouseSpeed >= 25) {
+              const angle = Math.atan2(-dy, -dx);
+              // TWEAK THIS: Change 0.8 (speed multiplier) and 35 (max speed limit) to adjust the throw
+              const blowForce = Math.min(mouseSpeed * 0.8, 35);
+              this.repelVX = Math.cos(angle) * blowForce;
+              this.repelVY = Math.sin(angle) * blowForce;
+            }
+            this.wasJustShocked = false;
           }
           if (this.shockLevel > 0) {
-             this.shockLevel -= 0.025; 
+            this.shockLevel -= 0.025;
           }
         }
-        
+
         // Apply velocity and friction
         this.x += this.repelVX;
         this.y += this.repelVY;
-        this.repelVX *= 0.92; 
+        this.repelVX *= 0.92;
         this.repelVY *= 0.92;
         // BUG FIX END
 
@@ -282,29 +286,35 @@ export function InteractiveBackground() {
         // BUG FIX START: Handle shock color override and electric arc
         let currentPrefix = this.colorPrefix;
         let currentOpacity = opacity;
-        
+
         if (this.shockLevel > 0) {
           currentPrefix = "rgba(15, 66, 169, "; // Turns to primary blue when shocked
           currentOpacity = Math.max(opacity, this.shockLevel * 0.9);
-          
+
           // Draw electrical arc connecting to mouse while in range
-          if (this.shockLevel === 1.0 && mouse.x > -1000 && Math.random() > 0.4) {
-             ctx.save();
-             ctx.rotate(-this.rotation); 
-             ctx.beginPath();
-             ctx.moveTo(0, 0);
-             const midX = dx * 0.5 + (Math.random() - 0.5) * 40;
-             const midY = dy * 0.5 + (Math.random() - 0.5) * 40;
-             ctx.lineTo(midX, midY);
-             ctx.lineTo(dx, dy);
-             ctx.strokeStyle = `rgba(15, 66, 169, ${Math.random() * 0.8})`;
-             ctx.lineWidth = 1.5;
-             ctx.stroke();
-             ctx.restore();
+          if (
+            this.shockLevel === 1.0 &&
+            mouse.x > -1000 &&
+            Math.random() > 0.4
+          ) {
+            ctx.save();
+            ctx.rotate(-this.rotation);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            const midX = dx * 0.5 + (Math.random() - 0.5) * 40;
+            const midY = dy * 0.5 + (Math.random() - 0.5) * 40;
+            ctx.lineTo(midX, midY);
+            ctx.lineTo(dx, dy);
+            ctx.strokeStyle = `rgba(15, 66, 169, ${Math.random() * 0.8})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.restore();
           }
         }
 
-        ctx.shadowBlur = 8 * scale;
+        /* BUG FIX START: Removed '* scale' to ensure the glow/blur is equal on all sides and doesn't distort */
+        ctx.shadowBlur = 8;
+        /* BUG FIX END */
         ctx.shadowColor = currentPrefix + currentOpacity * 0.6 + ")";
         ctx.strokeStyle = currentPrefix + currentOpacity + ")";
         ctx.fillStyle = currentPrefix + currentOpacity + ")";
@@ -341,7 +351,7 @@ export function InteractiveBackground() {
           ctx.fillText(this.symbol, 0, 0);
         } else if (this.type === "gamedev") {
           const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-          const jiggle = Math.min(speed * 0.025, 0.2); 
+          const jiggle = Math.min(speed * 0.025, 0.2);
           const s = size * (1 + jiggle);
           ctx.beginPath();
           ctx.moveTo(0, -s);
@@ -384,7 +394,7 @@ export function InteractiveBackground() {
 
     const initParticles = () => {
       particles = [];
-      const count = (window.innerWidth * window.innerHeight) / 25000;
+      const count = (window.innerWidth * window.innerHeight) / 13500;
       for (let i = 0; i < count; i++) {
         particles.push(new Particle(canvas.width, canvas.height));
       }
@@ -502,7 +512,12 @@ export function InteractiveBackground() {
 
       if (mouse.x > -1000 && isMoving) {
         const lastPoint = activeTrail[activeTrail.length - 1];
-        const distance = lastPoint ? Math.sqrt(Math.pow(mouse.x - lastPoint.x, 2) + Math.pow(mouse.y - lastPoint.y, 2)) : 20;
+        const distance = lastPoint
+          ? Math.sqrt(
+              Math.pow(mouse.x - lastPoint.x, 2) +
+                Math.pow(mouse.y - lastPoint.y, 2),
+            )
+          : 20;
 
         if (distance > 12) {
           activeTrail.push({ x: mouse.x, y: mouse.y, life: 1.0 });
@@ -510,7 +525,7 @@ export function InteractiveBackground() {
       }
 
       for (let i = activeTrail.length - 1; i >= 0; i--) {
-        activeTrail[i].life -= 0.08; 
+        activeTrail[i].life -= 0.08;
         if (activeTrail[i].life <= 0) {
           activeTrail.splice(i, 1);
         }
@@ -522,9 +537,9 @@ export function InteractiveBackground() {
         for (let i = 0; i < activeTrail.length; i++) {
           const pt = activeTrail[i];
           const intensity = pt.life;
-          const progress = 1 - pt.life; 
+          const progress = 1 - pt.life;
 
-          const radius = 2 + progress * 35; 
+          const radius = 2 + progress * 35;
 
           // 1. Electric jagged field outline (Primary Palette: #0F42A9)
           ctx.beginPath();
@@ -536,12 +551,12 @@ export function InteractiveBackground() {
             const r = radius + jitter;
             const px = pt.x + Math.cos(angle) * r;
             const py = pt.y + Math.sin(angle) * r;
-            
+
             if (j === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
           }
           ctx.closePath();
-          
+
           ctx.shadowBlur = 8;
           ctx.shadowColor = `rgba(15, 66, 169, ${intensity})`;
           ctx.strokeStyle = `rgba(15, 66, 169, ${intensity * 0.5})`;
@@ -558,12 +573,12 @@ export function InteractiveBackground() {
             const r = coreRadius + coreJitter;
             const px = pt.x + Math.cos(angle) * r;
             const py = pt.y + Math.sin(angle) * r;
-            
+
             if (j === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
           }
           ctx.closePath();
-          
+
           ctx.fillStyle = `rgba(36, 59, 105, ${Math.max(0, intensity - 0.2) * 0.3})`;
           ctx.fill();
         }

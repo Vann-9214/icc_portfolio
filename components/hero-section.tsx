@@ -2,36 +2,11 @@
 
 import { motion } from "framer-motion";
 import { GitHubLogoIcon, LinkedInLogoIcon } from "@radix-ui/react-icons";
-import { Download, ArrowDown, Cpu, Code2, Gamepad2, Wifi } from "lucide-react";
+import { Download, ArrowDown } from "lucide-react";
 import { useRef, useState } from "react";
+import { HERO_DATA, SPECIALTIES } from "@/lib/data";
 
-const SPECIALTIES = [
-  {
-    label: "Hardware",
-    icon: Cpu,
-    style: "text-amber-700 border-amber-700/30 bg-amber-700/10",
-    dot: "bg-amber-700",
-  },
-  {
-    label: "Software",
-    icon: Code2,
-    style: "text-blue-700 border-blue-700/30 bg-blue-700/10",
-    dot: "bg-blue-700",
-  },
-  {
-    label: "Game Dev",
-    icon: Gamepad2,
-    style: "text-purple-700 border-purple-700/30 bg-purple-700/10",
-    dot: "bg-purple-700",
-  },
-  {
-    label: "IoT",
-    icon: Wifi,
-    style: "text-teal-700 border-teal-700/30 bg-teal-700/10",
-    dot: "bg-teal-700",
-  },
-];
-
+// Controls the staggered fade-in effect for the left column text and buttons
 const stagger = {
   container: {
     hidden: {},
@@ -52,6 +27,7 @@ export function HeroSection() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
+  // Calculates the 3D tilt effect based on mouse position over the profile card
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const card = cardRef.current;
     if (!card) return;
@@ -63,6 +39,7 @@ export function HeroSection() {
     setTilt({ x: -ny * 13, y: nx * 13 });
   }
 
+  // Resets the profile card flat when the mouse leaves the area
   function handleMouseLeave() {
     setIsHovered(false);
     setTilt({ x: 0, y: 0 });
@@ -72,15 +49,15 @@ export function HeroSection() {
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 pt-20 pb-16 bg-transparent overflow-hidden">
       <div className="w-full max-w-6xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
+          {/* Left Column: Text & Action Buttons */}
           <motion.div
-            /* ── Left Column ── */
             variants={stagger.container}
             initial="hidden"
             animate="show"
             className="relative space-y-7 order-2 lg:order-1 select-none"
           >
+            {/* Soft background glow effect behind the text */}
             <div
-              /* Soft glow behind left column — filter:blur on own pixels, no hard clip edge */
               className="absolute pointer-events-none -z-10"
               style={{
                 inset: "-80px -100px",
@@ -90,32 +67,35 @@ export function HeroSection() {
               }}
             />
 
-            <motion.div /* Name + role */ variants={stagger.item} className="space-y-3">
-              <h1 className="text-4xl md:text-5xl xl:text-6xl font-serif leading-[1.05] tracking-tight">
-                <span /* COLOR UPDATE: Applied primary orange */ className="text-primary-base">Ivan Clement</span>
+            {/* Name & Role */}
+            <motion.div variants={stagger.item} className="space-y-3">
+              <h1 className="text-4xl md:text-5xl xl:text-6xl font-serif leading-[1.05] tracking-tight text-brand-blue-dark">
+                <span className="text-primary-base">
+                  {HERO_DATA.name.first}
+                </span>
                 <br />
-                <span /* COLOR UPDATE: Applied complementary dark blue */ className="text-primary-secondary">Cañete</span>
+                <span className="text-brand-blue-dark">
+                  {HERO_DATA.name.last}
+                </span>
               </h1>
               <div className="flex items-center gap-3 pt-1">
-                <span /* COLOR UPDATE: Switched to neutral black */ className="block h-px w-6 bg-neutral-base shrink-0" />
-                <p /* COLOR UPDATE: Switched to neutral black */ className="text-xs font-mono tracking-[0.2em] text-neutral-base uppercase">
-                  Computer Engineering Student
+                <span className="block h-px w-6 bg-neutral-base shrink-0" />
+                <p className="text-xs font-mono tracking-[0.2em] text-neutral-base uppercase">
+                  {HERO_DATA.role}
                 </p>
               </div>
             </motion.div>
 
+            {/* Personal Description */}
             <motion.p
-              /* Description */
-              /* COLOR UPDATE: Switched description text to neutral black */
               variants={stagger.item}
               className="text-neutral-base text-base md:text-lg leading-relaxed max-w-[42ch]"
             >
-              Building complex systems from the ground up — engineering
-              everything from physical circuits to polished web interfaces.
+              {HERO_DATA.description}
             </motion.p>
 
+            {/* Specialties Pills (Hardware, Software, Game Dev, IoT) */}
             <motion.div
-              /* Specialty pills */
               variants={stagger.item}
               className="flex flex-wrap gap-2"
             >
@@ -130,7 +110,8 @@ export function HeroSection() {
               ))}
             </motion.div>
 
-            <motion.div /* Divider */ variants={stagger.item} className="overflow-hidden">
+            {/* Horizontal Animated Divider Line */}
+            <motion.div variants={stagger.item} className="overflow-hidden">
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
@@ -144,44 +125,47 @@ export function HeroSection() {
               />
             </motion.div>
 
+            {/* Action Buttons (GitHub, LinkedIn, Resume) */}
             <motion.div
-              /* Action Buttons */
               variants={stagger.item}
               className="flex flex-wrap gap-3"
             >
               <a
-                /* COLOR UPDATE: Switched button text to neutral black */
-                href="https://github.com/Vann-9214"
+                href={HERO_DATA.socials.github.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:border-neutral-base/30 hover:bg-neutral-base/[0.06] hover:shadow-sm active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04]"
+                draggable={false}
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:bg-black hover:text-white hover:border-black hover:shadow-sm active:bg-zinc-800 active:border-zinc-800 active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04] hover:-translate-y-1"
               >
-                <GitHubLogoIcon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                @Vann-9214
+                <GitHubLogoIcon className="w-4 h-4 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-300 ease-out" />
+                {HERO_DATA.socials.github.handle}
               </a>
+
               <a
-                /* COLOR UPDATE: Switched button text to neutral black */
-                href="https://www.linkedin.com/in/ivan-canete/"
+                href={HERO_DATA.socials.linkedin.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:border-neutral-base/30 hover:bg-neutral-base/[0.06] hover:shadow-sm active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04]"
+                draggable={false}
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] hover:shadow-sm active:bg-[#004182] active:border-[#004182] active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04] hover:-translate-y-1"
               >
-                <LinkedInLogoIcon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                LinkedIn
+                <LinkedInLogoIcon className="w-4 h-4 group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300 ease-out" />
+                {HERO_DATA.socials.linkedin.label}
               </a>
+
               <a
-                href="/Ivan Cañete, Resume.pdf"
+                href={HERO_DATA.socials.resume.url}
                 download
-                className="group inline-flex items-center gap-2.5 px-6 py-2.5 bg-neutral-base text-white rounded-full text-sm font-medium hover:bg-orange-500 active:bg-orange-600 active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg shadow-neutral-base/20 hover:shadow-orange-500/25"
+                draggable={false}
+                className="group inline-flex items-center gap-2.5 px-6 py-2.5 bg-brand-navy text-white rounded-full text-sm font-medium hover:bg-orange-500 active:bg-orange-600 active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg shadow-brand-navy/20 hover:shadow-orange-500/25 hover:-translate-y-1"
               >
-                <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform duration-200" />
-                Resume
+                <Download className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300 ease-out" />
+                {HERO_DATA.socials.resume.label}
               </a>
             </motion.div>
           </motion.div>
 
+          {/* Right Column: 3D Profile Card */}
           <motion.div
-            /* ── Right Column — Profile Card ── */
             ref={cardRef}
             initial={{ opacity: 0, scale: 0.93 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -196,7 +180,8 @@ export function HeroSection() {
             style={{ perspective: "1000px" }}
             className="relative aspect-square w-full max-w-sm lg:max-w-none mx-auto order-1 lg:order-2 cursor-pointer select-none"
           >
-            {[ /* Tech-bracket corner accents */
+            {/* Corner Tech Bracket Accents */}
+            {[
               "top-0 left-0 border-t border-l rounded-tl-md",
               "top-0 right-0 border-t border-r rounded-tr-md",
               "bottom-0 left-0 border-b border-l rounded-bl-md",
@@ -209,8 +194,8 @@ export function HeroSection() {
               />
             ))}
 
+            {/* 3D Tilt Wrapper */}
             <div
-              /* Tilt wrapper */
               style={{
                 width: "100%",
                 height: "100%",
@@ -222,29 +207,23 @@ export function HeroSection() {
                 position: "relative",
               }}
             >
+              {/* Offset Decorative Background Card (The rotated shadow box) */}
               <div
-                /* Offset decorative card */
                 style={{ transformStyle: "preserve-3d" }}
-                /* BUG FIX START: Changed offset card background from black (zinc-900) to primary-secondary */
-                className="absolute inset-0 bg-neutral-base rounded-3xl rotate-[3deg] opacity-50"
-                /* BUG FIX END */
+                className="absolute inset-0 bg-black rounded-3xl rotate-[3deg] opacity-50"
               />
 
+              {/* Main Foreground Card Surface */}
               <div
-                /* Main card surface */
-                /* BUG FIX START: Added bg-primary-secondary class to replace the hardcoded black gradient */
-                className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl flex items-end justify-center bg-neutral-base"
-                /* BUG FIX END */
+                className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/60 flex items-end justify-center bg-black"
                 style={{
-                  /* BUG FIX START: Removed the hardcoded black linear-gradient background */
                   border: "1px solid rgba(255,255,255,0.08)",
                   transformStyle: "preserve-3d",
                   padding: "4rem 2rem 0",
-                  /* BUG FIX END */
                 }}
               >
+                {/* Top Edge Shimmer Effect */}
                 <div
-                  /* Top edge shimmer */
                   className="absolute top-0 inset-x-0 h-px pointer-events-none"
                   style={{
                     background:
@@ -252,8 +231,8 @@ export function HeroSection() {
                   }}
                 />
 
+                {/* Ambient Color Blobs inside the card */}
                 <div
-                  /* Ambient color blobs inside card */
                   className="absolute top-1/4 -right-10 w-48 h-48 rounded-full pointer-events-none"
                   style={{
                     background:
@@ -270,8 +249,8 @@ export function HeroSection() {
                   }}
                 />
 
+                {/* Interactive Light Glare that moves with the mouse */}
                 <div
-                  /* Glare */
                   style={{
                     position: "absolute",
                     inset: 0,
@@ -285,11 +264,12 @@ export function HeroSection() {
                   }}
                 />
 
+                {/* Profile Image Subject */}
                 <img
-                  /* Profile image */
                   src="/Profile.svg"
                   alt="Ivan Clement P. Cañete"
-                  className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-2xl z-0"
+                  draggable={false}
+                  className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-[0_20px_20px_rgba(255,255,255,0.15)] z-0 select-none pointer-events-none"
                   style={{ zIndex: 1 }}
                 />
               </div>
@@ -298,9 +278,8 @@ export function HeroSection() {
         </div>
       </div>
 
+      {/* Bottom Scroll Indicator */}
       <motion.div
-        /* Scroll indicator */
-        /* COLOR UPDATE: Switched indicator text to neutral black with an opacity modifier */
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1.4 }}

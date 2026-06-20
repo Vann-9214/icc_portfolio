@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { InteractiveBackground } from "@/components/interactive-background";
+import { TransitionProvider } from "@/components/transition.provider";
+import { Navigation } from "@/components/navigation";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -60,7 +62,12 @@ export default function RootLayout({
       <body className="font-sans antialiased relative min-h-screen">
         <InteractiveBackground />
 
-        <div className="relative z-10">{children}</div>
+        <TransitionProvider>
+          {/* Navigation lives here so it shares the transition context */}
+          <Navigation />
+
+          <div className="relative z-10">{children}</div>
+        </TransitionProvider>
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
