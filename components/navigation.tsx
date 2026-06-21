@@ -44,10 +44,12 @@ export function Navigation() {
             whileHover="hover"
             whileTap={{ scale: 0.97 }}
           >
+            {/* BUG FIX START - Added cursor-pointer */}
             <button
               onClick={() => navigate("/")}
-              className="inline-flex items-center gap-3 text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300"
+              className="cursor-pointer inline-flex items-center gap-3 text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300"
             >
+              {/* BUG FIX END */}
               <motion.div
                 variants={{ initial: { x: 0 }, hover: { x: -4 } }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -95,7 +97,7 @@ export function Navigation() {
             >
               <button
                 onClick={() => navigate("/projects")}
-                className="text-sm text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300 tracking-wide"
+                className="cursor-pointer text-sm text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300 tracking-wide"
               >
                 Projects
               </button>

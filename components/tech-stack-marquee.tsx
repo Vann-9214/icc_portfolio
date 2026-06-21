@@ -27,8 +27,11 @@ function DraggableRow({
   const [contentWidth, setContentWidth] = useState(0);
   const x = useMotionValue(0);
   const isDragging = useRef(false);
-  // Track LAST pointer position, not origin — gives us incremental deltas
   const lastPointerX = useRef(0);
+
+  const velocityHistory = useRef<number[]>([]);
+  const coastVelocity = useRef(0);
+  const isCoasting = useRef(false);
 
   const duplicatedItems = [...items, ...items, ...items, ...items];
 
@@ -42,19 +45,30 @@ function DraggableRow({
 
   useAnimationFrame((_, delta) => {
     if (contentWidth === 0 || isDragging.current) return;
+
+    if (isCoasting.current) {
+      coastVelocity.current *= 0.91;
+      if (Math.abs(coastVelocity.current) < 0.25) {
+        isCoasting.current = false;
+        coastVelocity.current = 0;
+      } else {
+        x.set(normalizeX(x.get() + coastVelocity.current, contentWidth));
+        return;
+      }
+    }
+
     const speed = delta * 0.04;
     const moved = direction === "left" ? x.get() - speed : x.get() + speed;
     x.set(normalizeX(moved, contentWidth));
   });
 
-  // KEY FIX: pointer events give incremental deltaX, not absolute-from-origin.
-  // After any teleport, the next move just adds a small delta from the new spot.
-  // Framer Motion's drag prop causes snap-back because it tracks from drag origin.
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDragging.current = true;
+      isCoasting.current = false;
+      coastVelocity.current = 0;
+      velocityHistory.current = [];
       lastPointerX.current = e.clientX;
-      // Capture keeps events flowing even if pointer leaves the element (fast drag)
       e.currentTarget.setPointerCapture(e.pointerId);
     },
     [],
@@ -65,12 +79,24 @@ function DraggableRow({
       if (!isDragging.current || contentWidth === 0) return;
       const deltaX = e.clientX - lastPointerX.current;
       lastPointerX.current = e.clientX;
+      velocityHistory.current.push(deltaX);
+      if (velocityHistory.current.length > 6) velocityHistory.current.shift();
       x.set(normalizeX(x.get() + deltaX, contentWidth));
     },
     [contentWidth, x],
   );
 
   const stopDragging = useCallback(() => {
+    if (velocityHistory.current.length > 0) {
+      const avg =
+        velocityHistory.current.reduce((a, b) => a + b, 0) /
+        velocityHistory.current.length;
+      if (Math.abs(avg) > 0.5) {
+        coastVelocity.current = avg * 2.8;
+        isCoasting.current = true;
+      }
+    }
+    velocityHistory.current = [];
     isDragging.current = false;
   }, []);
 
@@ -82,19 +108,27 @@ function DraggableRow({
       onPointerUp={stopDragging}
       onPointerCancel={stopDragging}
     >
-      <motion.div
-        ref={innerRef}
-        className="flex w-max"
-        style={{ x }}
-        // No drag prop — we handle it manually above
-      >
+      <motion.div ref={innerRef} className="flex w-max" style={{ x }}>
         {duplicatedItems.map((tech, index) => (
           <div
             key={`${tech.name}-${index}`}
-            className="flex items-center gap-4 px-8 md:px-12 py-6 mx-3 border border-border rounded-xl bg-white/[0.04] backdrop-blur-xl hover:bg-white/[0.08] transition-colors duration-300 flex-shrink-0 select-none"
+            className={[
+              "flex items-center gap-4 px-8 md:px-12 py-6 mx-3 rounded-xl flex-shrink-0 select-none",
+              "relative overflow-hidden",
+              "border border-white/60 bg-white/[0.04] shadow-sm",
+              "transition-all duration-150 ease-out",
+              "hover:border-white/90 hover:bg-white/[0.09] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.15),0_4px_24px_rgba(255,255,255,0.06)]",
+              "active:scale-[0.97]",
+            ].join(" ")}
           >
-            <span className="text-2xl md:text-3xl">{tech.icon}</span>
-            <span className="text-lg md:text-xl text-foreground whitespace-nowrap">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            />
+            <span className="text-2xl md:text-3xl inline-block">
+              {tech.icon}
+            </span>
+            <span className="text-lg md:text-xl text-foreground/80 whitespace-nowrap">
               {tech.name}
             </span>
           </div>
@@ -105,17 +139,55 @@ function DraggableRow({
 }
 
 export function TechStackMarquee() {
-  return (
-    <section className="py-32 md:py-48 overflow-hidden">
-      <FadeInOnScroll className="mb-16 px-6 md:px-12 lg:px-24">
-        <span className="text-muted-foreground text-sm tracking-[0.3em] uppercase">
-          Tech Stack
-        </span>
-      </FadeInOnScroll>
+  const blurMask = {
+    maskImage:
+      "linear-gradient(to bottom, transparent, black 32px, black calc(100% - 32px), transparent)",
+    WebkitMaskImage:
+      "linear-gradient(to bottom, transparent, black 32px, black calc(100% - 32px), transparent)",
+  };
 
-      <div className="relative space-y-6">
-        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+  return (
+    <section className="relative py-32 md:py-48 overflow-hidden">
+      {/* ── Text header blur — same fade-mask trick, no hard edges ── */}
+      <div
+        className="relative mb-20 py-8 backdrop-blur-sm bg-white/[0.01]"
+        style={blurMask}
+      >
+        <FadeInOnScroll className="relative px-6 md:px-12 lg:px-24">
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute -top-3 left-0 text-[5rem] md:text-[8rem] font-black tracking-tighter leading-none text-white/[0.028]"
+            >
+              STACK
+            </span>
+
+            <div className="mb-3 flex items-center gap-3">
+              <span className="text-sm tracking-[0.3em] uppercase text-muted-foreground">
+                Tech Stack
+              </span>
+            </div>
+
+            <div className="flex flex-col space-y-3 max-w-2xl">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground bg-clip-text bg-gradient-to-b from-foreground via-foreground to-foreground/70">
+                Engineered with a world-class production stack.
+              </h2>
+              <p className="text-muted-foreground text-sm md:text-base max-w-lg pt-1">
+                Seamless interactive performance across modern technologies,
+                frameworks, and deployment architectures.
+              </p>
+            </div>
+          </div>
+        </FadeInOnScroll>
+      </div>
+
+      {/* ── Rows blur — unchanged ── */}
+      <div
+        className="relative space-y-6 backdrop-blur-sm bg-white/[0.01] py-8"
+        style={blurMask}
+      >
+        <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-28 bg-gradient-to-r from-background to-transparent md:w-72" />
+        <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-28 bg-gradient-to-l from-background to-transparent md:w-72" />
 
         <DraggableRow items={firstHalf} direction="left" />
         <DraggableRow items={secondHalf} direction="right" />
