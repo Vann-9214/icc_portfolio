@@ -46,7 +46,9 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 pt-20 pb-16 bg-transparent overflow-hidden">
+
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 pt-26 md:pt-22 pb-16 bg-transparent overflow-hidden">
+
       <div className="w-full max-w-6xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
           {/* Left Column: Text & Action Buttons */}
@@ -277,24 +279,6 @@ export function HeroSection() {
           </motion.div>
         </div>
       </div>
-
-      {/* Bottom Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1.4 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-neutral-base/60 pointer-events-none"
-      >
-        <span className="text-[10px] font-mono tracking-[0.25em] uppercase">
-          Scroll
-        </span>
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ArrowDown className="w-3.5 h-3.5" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }

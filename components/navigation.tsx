@@ -17,13 +17,20 @@ export function Navigation() {
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const isScrollingDown = latest > lastYPos;
+
     if (isScrollingDown && latest > 50) {
       setHidden(true);
     } else {
       setHidden(false);
     }
+
     setLastYPos(latest);
   });
+
+  // BUG FIX START - Added hover:drop-shadow for orange glow effect, removed movement animation classes
+  const navLinkClass =
+    "relative group text-[10px] md:text-sm uppercase tracking-wide pb-0.5 md:pb-1 text-black visited:text-black hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] active:!text-orange-600 transition-all duration-300 focus:outline-none";
+  // BUG FIX END
 
   return (
     <motion.nav
@@ -34,97 +41,71 @@ export function Navigation() {
       initial="visible"
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-neutral-200/20 shadow-lg shadow-brand-blue-dark/10 select-none"
+      className="fixed top-0 left-0 right-0 z-50 bg-transparent select-none"
     >
-      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between">
+      <div className="w-full mx-auto px-6 md:px-12 lg:px-18 xl:px-22 py-4 flex items-start md:items-center justify-between">
         {isProjectsPage ? (
-          // Back button — triggers transition back to home
           <motion.div
             initial="initial"
-            whileHover="hover"
-            whileTap={{ scale: 0.97 }}
           >
-            {/* BUG FIX START - Added cursor-pointer */}
             <button
               onClick={() => navigate("/")}
-              className="cursor-pointer inline-flex items-center gap-3 text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300"
+              className="relative group inline-flex cursor-pointer items-center gap-3 text-black hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] active:!text-orange-600 transition-all duration-300 focus:outline-none pb-0.5"
             >
-              {/* BUG FIX END */}
-              <motion.div
-                variants={{ initial: { x: 0 }, hover: { x: -4 } }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </motion.div>
+              <ArrowLeft className="h-4 w-4" />
               <span className="text-sm tracking-wide">Back</span>
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
             </button>
           </motion.div>
         ) : (
-          // Logo — plain anchor, no transition needed (same page)
           <a
             href="/"
             draggable={false}
-            className="text-neutral-base font-serif text-xl tracking-tight origin-left inline-block"
+            // BUG FIX START - Added orange hover text and glow effect
+            className="text-black font-serif text-lg md:text-xl tracking-tight hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-all duration-300"
+            // BUG FIX END
           >
             ICC
           </a>
         )}
 
         {!isProjectsPage && (
-          <div className="flex items-center gap-8 select-none">
-            {/* About — hash link, no transition needed */}
-            <motion.a
+          <div className="flex flex-col md:flex-row items-end md:items-center gap-1 md:gap-14">
+            {/* About */}
+            <a
               href="#about"
               draggable={false}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative text-sm text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300 tracking-wide pb-1"
+              className={navLinkClass}
             >
               About
-              <motion.span
-                variants={{ initial: { scaleX: 0 }, hover: { scaleX: 1 } }}
-                initial="initial"
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute left-0 bottom-0 right-0 h-[2px] bg-orange-500 origin-center"
-              />
-            </motion.a>
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+            </a>
 
-            {/* Projects — triggers the wipe transition */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative pb-1"
+            {/* Projects */}
+            <div
+              className="relative group pb-0.5 md:pb-1"
             >
               <button
                 onClick={() => navigate("/projects")}
-                className="cursor-pointer text-sm text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300 tracking-wide"
+                // BUG FIX START - Added orange hover glow
+                className="cursor-pointer bg-transparent border-none p-0 text-[10px] md:text-sm uppercase tracking-wide text-black hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] active:!text-orange-600 transition-all duration-300 focus:outline-none"
+                // BUG FIX END
               >
                 Projects
               </button>
-              <motion.span
-                variants={{ initial: { scaleX: 0 }, hover: { scaleX: 1 } }}
-                initial="initial"
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute left-0 bottom-0 right-0 h-[2px] bg-orange-500 origin-center"
-              />
-            </motion.div>
 
-            {/* Contact — hash link, no transition needed */}
-            <motion.a
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+            </div>
+
+            {/* Contact */}
+            <a
               href="#contact"
               draggable={false}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative text-sm text-neutral-base hover:text-orange-500 active:text-orange-600 focus:outline-none transition-colors duration-300 tracking-wide pb-1"
+              className={navLinkClass}
             >
               Contact
-              <motion.span
-                variants={{ initial: { scaleX: 0 }, hover: { scaleX: 1 } }}
-                initial="initial"
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute left-0 bottom-0 right-0 h-[2px] bg-orange-500 origin-center"
-              />
-            </motion.a>
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+            </a>
           </div>
         )}
       </div>
