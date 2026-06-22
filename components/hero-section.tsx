@@ -1,8 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { GitHubLogoIcon, LinkedInLogoIcon } from "@radix-ui/react-icons";
-import { Download, ArrowDown } from "lucide-react";
 import { useRef, useState } from "react";
 import { HERO_DATA, SPECIALTIES } from "@/lib/data";
 
@@ -46,12 +44,10 @@ export function HeroSection() {
   }
 
   return (
-
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 pt-26 md:pt-22 pb-16 bg-transparent overflow-hidden">
-
       <div className="w-full max-w-6xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
-          {/* Left Column: Text & Action Buttons */}
+          {/* Left Column: Text */}
           <motion.div
             variants={stagger.container}
             initial="hidden"
@@ -126,44 +122,6 @@ export function HeroSection() {
                 className="h-px bg-gradient-to-r from-border via-border/50 to-transparent"
               />
             </motion.div>
-
-            {/* Action Buttons (GitHub, LinkedIn, Resume) */}
-            <motion.div
-              variants={stagger.item}
-              className="flex flex-wrap gap-3"
-            >
-              <a
-                href={HERO_DATA.socials.github.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                draggable={false}
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:bg-black hover:text-white hover:border-black hover:shadow-sm active:bg-zinc-800 active:border-zinc-800 active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04] hover:-translate-y-1"
-              >
-                <GitHubLogoIcon className="w-4 h-4 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-300 ease-out" />
-                {HERO_DATA.socials.github.handle}
-              </a>
-
-              <a
-                href={HERO_DATA.socials.linkedin.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                draggable={false}
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 border border-border rounded-full text-neutral-base text-sm hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] hover:shadow-sm active:bg-[#004182] active:border-[#004182] active:scale-[0.97] transition-all duration-200 backdrop-blur-xl bg-white/[0.04] hover:-translate-y-1"
-              >
-                <LinkedInLogoIcon className="w-4 h-4 group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300 ease-out" />
-                {HERO_DATA.socials.linkedin.label}
-              </a>
-
-              <a
-                href={HERO_DATA.socials.resume.url}
-                download
-                draggable={false}
-                className="group inline-flex items-center gap-2.5 px-6 py-2.5 bg-brand-navy text-white rounded-full text-sm font-medium hover:bg-orange-500 active:bg-orange-600 active:scale-[0.97] transition-all duration-300 shadow-md hover:shadow-lg shadow-brand-navy/20 hover:shadow-orange-500/25 hover:-translate-y-1"
-              >
-                <Download className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300 ease-out" />
-                {HERO_DATA.socials.resume.label}
-              </a>
-            </motion.div>
           </motion.div>
 
           {/* Right Column: 3D Profile Card */}
@@ -180,7 +138,10 @@ export function HeroSection() {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={handleMouseLeave}
             style={{ perspective: "1000px" }}
-            className="relative aspect-square w-full max-w-sm lg:max-w-none mx-auto order-1 lg:order-2 cursor-pointer select-none"
+            // BUG FIX START - Added data-cursor="interactive" and removed "cursor-pointer" from the className. This triggers the custom trailing cursor effect but keeps your standard system arrow pointer.
+            data-cursor="interactive"
+            className="relative aspect-square w-full max-w-sm lg:max-w-none mx-auto order-1 lg:order-2 select-none"
+            // BUG FIX END
           >
             {/* Corner Tech Bracket Accents */}
             {[

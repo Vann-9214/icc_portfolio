@@ -27,9 +27,9 @@ export function Navigation() {
     setLastYPos(latest);
   });
 
-  // BUG FIX START - Added hover:drop-shadow for orange glow effect, removed movement animation classes
+  // BUG FIX START - Changed text hover and drop-shadow glow from orange to brand blue
   const navLinkClass =
-    "relative group text-[10px] md:text-sm uppercase tracking-wide pb-0.5 md:pb-1 text-black visited:text-black hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] active:!text-orange-600 transition-all duration-300 focus:outline-none";
+    "relative group text-[10px] md:text-sm uppercase tracking-wide pb-0.5 md:pb-1 text-black visited:text-black hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none";
   // BUG FIX END
 
   return (
@@ -48,21 +48,23 @@ export function Navigation() {
           <motion.div
             initial="initial"
           >
+            {/* BUG FIX START - Changed Back button text hover and underline color to brand blue */}
             <button
               onClick={() => navigate("/")}
-              className="relative group inline-flex cursor-pointer items-center gap-3 text-black hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] active:!text-orange-600 transition-all duration-300 focus:outline-none pb-0.5"
+              className="relative group inline-flex cursor-pointer items-center gap-3 text-black hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none pb-0.5"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm tracking-wide">Back</span>
-              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-[#0F42A9] shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
             </button>
+            {/* BUG FIX END */}
           </motion.div>
         ) : (
           <a
             href="/"
             draggable={false}
-            // BUG FIX START - Added orange hover text and glow effect
-            className="text-black font-serif text-lg md:text-xl tracking-tight hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-all duration-300"
+            // BUG FIX START - Changed ICC logo hover text and glow to brand blue
+            className="text-black font-serif text-lg md:text-xl tracking-tight hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-all duration-300"
             // BUG FIX END
           >
             ICC
@@ -78,7 +80,9 @@ export function Navigation() {
               className={navLinkClass}
             >
               About
-              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              {/* BUG FIX START - Changed underline and shadow color to brand blue */}
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-[#0F42A9] shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              {/* BUG FIX END */}
             </a>
 
             {/* Projects */}
@@ -87,14 +91,16 @@ export function Navigation() {
             >
               <button
                 onClick={() => navigate("/projects")}
-                // BUG FIX START - Added orange hover glow
-                className="cursor-pointer bg-transparent border-none p-0 text-[10px] md:text-sm uppercase tracking-wide text-black hover:!text-orange-500 hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] active:!text-orange-600 transition-all duration-300 focus:outline-none"
+                // BUG FIX START - Changed Projects hover text and glow to brand blue
+                className="cursor-pointer bg-transparent border-none p-0 text-[10px] md:text-sm uppercase tracking-wide text-black hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none"
                 // BUG FIX END
               >
                 Projects
               </button>
 
-              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              {/* BUG FIX START - Changed underline and shadow color to brand blue */}
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-[#0F42A9] shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              {/* BUG FIX END */}
             </div>
 
             {/* Contact */}
@@ -104,7 +110,9 @@ export function Navigation() {
               className={navLinkClass}
             >
               Contact
-              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              {/* BUG FIX START - Changed underline and shadow color to brand blue */}
+              <span className="absolute left-0 bottom-0 h-[2px] w-full origin-left scale-x-0 bg-[#0F42A9] shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              {/* BUG FIX END */}
             </a>
           </div>
         )}

@@ -31,6 +31,10 @@ const KEYFRAMES = `
     from { opacity: 0; transform: scale(0.78); filter: blur(12px); }
     to   { opacity: 1; transform: scale(1);    filter: blur(0);    }
   }
+  @keyframes expandCircle {
+    0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(150); opacity: 1; }
+  }
 `;
 
 // ─── tiny color helpers ────────────────────────────────────
@@ -49,6 +53,8 @@ export function IntroLoader() {
   const [opacity, setOpacity]  = useState(1); 
   
   const [fading,  setFading]   = useState(false);
+
+  const [circleExpanding, setCircleExpanding] = useState(false);
 
   const [progress, setProgress] = useState(0);
   const [deviceType, setDeviceType] = useState("Web");
@@ -78,21 +84,18 @@ export function IntroLoader() {
     const updateProgress = () => {
       const elapsedTime = Date.now() - startTime;
 
-      // Realistic loading simulation (bursts and stalls)
       if (currentProgress < 35) {
-        currentProgress += Math.floor(Math.random() * 8) + 2; // Fast initial burst
+        currentProgress += Math.floor(Math.random() * 8) + 2; 
       } else if (currentProgress < 75) {
-        currentProgress += Math.floor(Math.random() * 4); // Slower middle section, occasionally adding 0 (stalling)
+        currentProgress += Math.floor(Math.random() * 4); 
       } else {
-        currentProgress += Math.floor(Math.random() * 6) + 1; // Steady climb to the end
+        currentProgress += Math.floor(Math.random() * 6) + 1; 
       }
 
-      // Enforce the 2.5-second minimum: cap at 95% until 2300ms have passed
       if (elapsedTime < 2300 && currentProgress > 95) {
         currentProgress = 95; 
       }
 
-      // Hold at 99% if the user's browser is genuinely still downloading heavy assets
       if (document.readyState !== "complete" && currentProgress > 99) {
         currentProgress = 99;
       }
@@ -105,21 +108,19 @@ export function IntroLoader() {
       setProgress(currentProgress);
     };
 
-    // Run every 80ms to create a slightly jittery, realistic network pulling effect
     interval = setInterval(updateProgress, 80);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Only begin the exit animation once progress has reached 100% locally
     if (progress === 100) {
+      // BUG FIX START - Adjusted timers. The loader now waits for the 2.2s white circle to finish expanding, THEN does a rapid fade-out so there is no transparent overlap.
       const timers = [
-        // BUG FIX START - Extended the delay before fading starts. This gives the browser's main thread enough time to process heavy background content (like your interactive background) and recover from the FPS spike before attempting to animate the fade.
-        setTimeout(() => { setFading(true); setOpacity(0); }, 1500), 
-        // Extended the unmount timer significantly so it doesn't delete the component from the DOM while it's still trying to fade out through the lag.
-        setTimeout(() => setMounted(false), 3500), 
-        // BUG FIX END
+        setTimeout(() => setCircleExpanding(true), 300), 
+        setTimeout(() => { setFading(true); setOpacity(0); }, 2000), 
+        setTimeout(() => setMounted(false), 3000), 
       ];
+      // BUG FIX END
       return () => timers.forEach(clearTimeout);
     }
   }, [progress]);
@@ -131,19 +132,59 @@ export function IntroLoader() {
       <style>{KEYFRAMES}</style>
 
       <div
+        id="intro-loader"
+        data-fading={fading.toString()}
+        onDragStart={(e) => e.preventDefault()}
         style={{
           position: "fixed", inset: 0, zIndex: 9999,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          background: "#ffffff",
+          background: "radial-gradient(circle at 50% 50%, #ffffff 0%, #EEF3FC 100%)",
           opacity,
-          transition: `opacity ${fading ? "1s" : "0s"} ease-in-out`,
-          willChange: "opacity",
-          // BUG FIX START - Added pointerEvents so the wrapper stops blocking your mouse clicks immediately once it starts fading out
-          pointerEvents: fading ? "none" : "auto",
+          // BUG FIX START - Reduced the fade duration from 2s to a snappy 0.4s clean wipe
+          transition: `opacity ${fading ? "0.4s" : "0s"} ease-in-out`,
           // BUG FIX END
+          willChange: "opacity",
+          pointerEvents: fading ? "none" : "auto",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          MozUserSelect: "none",
+          cursor: "auto",
         }}
       >
+        {circleExpanding && (
+          <>
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                backgroundColor: "#000",
+                zIndex: 99998,
+                animation: "expandCircle 2.2s both cubic-bezier(0.65, 0, 0.35, 1)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                backgroundColor: "#fff",
+                zIndex: 99999,
+                animation: "expandCircle 2.2s both cubic-bezier(0.65, 0, 0.35, 1) 0.4s",
+                pointerEvents: "none",
+              }}
+            />
+          </>
+        )}
+
         {/* ambient glow disc */}
         <div style={{
           position: "absolute", width: 440, height: 440, borderRadius: "50%",
