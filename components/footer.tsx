@@ -1,6 +1,6 @@
 "use client";
 
-import { FadeInOnScroll } from "./scroll-animations";
+import { FadeInOnScroll } from "./animations/standard-scroll";
 import { GitHubLogoIcon, LinkedInLogoIcon } from "@radix-ui/react-icons";
 import { Mail } from "lucide-react";
 

@@ -5,14 +5,36 @@ import { useEffect, useState } from "react";
 
 export function Cursor() {
   const [initialPos, setInitialPos] = useState<{ x: number; y: number } | null>(null);
+  // NEW ADDITION START
+  const [hasMouse, setHasMouse] = useState(false);
+  // NEW ADDITION END
 
   useEffect(() => {
+    // NEW ADDITION START
+    const mql = window.matchMedia("(hover: hover) and (pointer: fine)");
+    setHasMouse(mql.matches);
+
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      setHasMouse(e.matches);
+    };
+    mql.addEventListener("change", handleMediaChange);
+    // NEW ADDITION END
+
     const handleFirstMove = (e: MouseEvent) => {
       setInitialPos({ x: e.clientX - 20, y: e.clientY - 20 });
     };
     window.addEventListener("mousemove", handleFirstMove, { once: true });
-    return () => window.removeEventListener("mousemove", handleFirstMove);
+    return () => {
+      window.removeEventListener("mousemove", handleFirstMove);
+      // NEW ADDITION START
+      mql.removeEventListener("change", handleMediaChange);
+      // NEW ADDITION END
+    };
   }, []);
+
+  // NEW ADDITION START
+  if (!hasMouse) return null;
+  // NEW ADDITION END
 
   if (!initialPos) return null;
 

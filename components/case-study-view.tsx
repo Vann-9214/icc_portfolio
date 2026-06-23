@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FadeInOnScroll } from './scroll-animations'
+import { FadeInOnScroll } from './animations/standard-scroll'
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
 import { ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 

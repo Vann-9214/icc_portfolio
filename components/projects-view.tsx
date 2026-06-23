@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FadeInOnScroll } from './scroll-animations'
+import { FadeInOnScroll } from './animations/standard-scroll'
 import { ProjectGrid } from './project-grid'
 import { CaseStudyView } from './case-study-view'
 import { Navigation } from './navigation'

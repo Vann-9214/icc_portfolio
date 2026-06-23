@@ -1,6 +1,6 @@
 "use client";
 
-import { FadeInOnScroll } from "./scroll-animations";
+import { FadeInOnScroll } from "./animations/standard-scroll";
 import { ABOUT_DATA } from "@/lib/data";
 
 export function AboutSection() {

@@ -40,7 +40,9 @@ export function FixedActions() {
       </div>
 
       {/* Resume Button Container */}
-      <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[90] pointer-events-auto">
+      {/* NEW ADDITION START - Adjusted right-6 to right-2 for far-right placement on mobile */}
+      <div className="fixed bottom-6 right-2 md:bottom-10 md:right-10 z-[90] pointer-events-auto">
+      {/* NEW ADDITION END */}
         <motion.div
           initial="initial"
           whileHover="hover"
@@ -106,7 +108,9 @@ export function FixedActions() {
             </span>
 
             {/* Mobile: Vertical Text */}
-            <span className="block md:hidden font-mono text-[10px] uppercase tracking-[0.15em] font-medium [writing-mode:vertical-rl] rotate-180 relative z-10 transition-colors duration-300 group-hover:text-neutral-300">
+            {/* NEW ADDITION START - Added mt-2 to give extra space inside between icon and text */}
+            <span className="block md:hidden font-mono text-[10px] uppercase tracking-[0.15em] font-medium [writing-mode:vertical-rl] rotate-180 relative z-10 transition-colors duration-300 group-hover:text-neutral-300 mt-2">
+            {/* NEW ADDITION END */}
               {HERO_DATA.socials.resume.label}
             </span>
           </motion.a>

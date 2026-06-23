@@ -1,6 +1,6 @@
 'use client'
 
-import { FadeInOnScroll } from './scroll-animations'
+import { FadeInOnScroll } from './animations/standard-scroll'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 

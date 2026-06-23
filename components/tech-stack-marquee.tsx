@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
-import { FadeInOnScroll } from "./scroll-animations";
+import { FadeInOnScroll } from "./animations/standard-scroll";
 import { TECH_STACK } from "@/lib/data";
 
 const halfPoint = Math.ceil(TECH_STACK.length / 2);
