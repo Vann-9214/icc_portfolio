@@ -59,8 +59,8 @@ export function HeroSection() {
               variants={stagger.container}
               initial="hidden"
               animate="show"
-              // BUG FIX START - Removed order classes from inner div as they are handled by wrapper
-              className="relative space-y-7 select-none"
+              // BUG FIX START - Removed order classes from inner div as they are handled by wrapper and removed select-none
+              className="relative space-y-7"
               // BUG FIX END
             >
               {/* Soft background glow effect behind the text */}
@@ -154,8 +154,8 @@ export function HeroSection() {
               onMouseLeave={handleMouseLeave}
               style={{ perspective: "1000px" }}
               data-cursor="interactive"
-              // BUG FIX START - Removed layout properties that were transferred to the ElementVacuumEffect wrapper
-              className="relative aspect-square w-full select-none"
+              // BUG FIX START - Removed layout properties that were transferred to the ElementVacuumEffect wrapper and removed select-none
+              className="relative aspect-square w-full"
               // BUG FIX END
             >
               {/* Corner Tech Bracket Accents */}
@@ -243,13 +243,14 @@ export function HeroSection() {
                   />
 
                   {/* Profile Image Subject */}
+                  {/* BUG FIX START - Removed select-none and draggable={false} */}
                   <img
                     src="/Profile.svg"
                     alt="Ivan Clement P. Cañete"
-                    draggable={false}
-                    className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-[0_20px_20px_rgba(255,255,255,0.15)] z-0 select-none pointer-events-none"
+                    className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-[0_20px_20px_rgba(255,255,255,0.15)] z-0 pointer-events-none"
                     style={{ zIndex: 1 }}
                   />
+                  {/* BUG FIX END */}
                 </div>
               </div>
             </motion.div>

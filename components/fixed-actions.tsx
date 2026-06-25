@@ -13,28 +13,30 @@ export function FixedActions() {
         data-cursor="interactive"
         className="hidden md:flex group cursor-default fixed bottom-10 left-10 z-[90] items-center gap-5 px-5 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-lg pointer-events-auto transition-all duration-500 hover:bg-[#0F42A9] hover:border-[#0F42A9] hover:shadow-[0_0_25px_rgba(15,66,169,0.6)]"
       >
+        {/* BUG FIX START - Removed draggable={false} */}
         <a
           href={HERO_DATA.socials.github.url}
           target="_blank"
           rel="noopener noreferrer"
-          draggable={false}
           className="text-neutral-base group-hover:text-white transition-all duration-300 hover:scale-125 hover:-rotate-12 active:scale-95 cursor-pointer"
           aria-label="GitHub"
         >
+        {/* BUG FIX END */}
           <GitHubLogoIcon className="w-5 h-5" />
         </a>
 
         {/* Small subtle divider that fades slightly when oval is blue */}
         <div className="w-px h-4 bg-white/20 group-hover:bg-white/40 transition-colors duration-500 pointer-events-none" />
 
+        {/* BUG FIX START - Removed draggable={false} */}
         <a
           href={HERO_DATA.socials.linkedin.url}
           target="_blank"
           rel="noopener noreferrer"
-          draggable={false}
           className="text-neutral-base group-hover:text-white transition-all duration-300 hover:scale-125 hover:rotate-12 active:scale-95 cursor-pointer"
           aria-label="LinkedIn"
         >
+        {/* BUG FIX END */}
           <LinkedInLogoIcon className="w-5 h-5" />
         </a>
       </div>
@@ -60,14 +62,13 @@ export function FixedActions() {
           />
 
           {/* The Button element */}
+          {/* BUG FIX START - Removed draggable={false} */}
           <motion.a
             href={HERO_DATA.socials.resume.url}
             download
-            draggable={false}
-            // Mobile layout: flex-col, no backgrounds, pure neutral text.
-            // Desktop layout: flex-row, glass neutral baseline, transitions to solid blue.
             className="group relative flex flex-col md:flex-row items-center justify-center gap-2 md:gap-2.5 md:px-5 md:py-3 md:bg-neutral-500/20 md:backdrop-blur-md md:border md:border-white/10 md:rounded-full md:shadow-lg overflow-hidden transition-all duration-300 outline-none cursor-pointer text-neutral-400 md:hover:text-white md:hover:-translate-y-1"
           >
+          {/* BUG FIX END */}
             {/* Desktop-only: Full solid blue color fill sliding up smoothly */}
             <motion.div
               variants={{

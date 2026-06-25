@@ -101,19 +101,23 @@ function DraggableRow({
   }, []);
 
   return (
+    // BUG FIX START - Removed select-none
     <div
-      className="overflow-hidden cursor-grab active:cursor-grabbing select-none"
+      className="overflow-hidden cursor-grab active:cursor-grabbing"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={stopDragging}
       onPointerCancel={stopDragging}
     >
+    // BUG FIX END
       <motion.div ref={innerRef} className="flex w-max" style={{ x }}>
         {duplicatedItems.map((tech, index) => (
           <div
             key={`${tech.name}-${index}`}
             className={[
-              "flex items-center gap-4 px-8 md:px-12 py-6 mx-3 rounded-xl flex-shrink-0 select-none",
+              // BUG FIX START - Removed select-none
+              "flex items-center gap-4 px-8 md:px-12 py-6 mx-3 rounded-xl flex-shrink-0",
+              // BUG FIX END
               "relative overflow-hidden",
               "border border-white/60 bg-white/[0.04] shadow-sm",
               "transition-all duration-150 ease-out",
@@ -155,10 +159,12 @@ export function TechStackMarquee() {
       >
         <FadeInOnScroll className="relative px-6 md:px-12 lg:px-24">
           <div className="relative">
+            {/* BUG FIX START - Removed select-none */}
             <span
               aria-hidden="true"
-              className="pointer-events-none select-none absolute -top-3 left-0 text-[5rem] md:text-[8rem] font-black tracking-tighter leading-none text-white/[0.028]"
+              className="pointer-events-none absolute -top-3 left-0 text-[5rem] md:text-[8rem] font-black tracking-tighter leading-none text-white/[0.028]"
             >
+            {/* BUG FIX END */}
               STACK
             </span>
 

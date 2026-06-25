@@ -127,6 +127,13 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /* NEW ADDITION START */
+    -webkit-user-select: none; 
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
+    -webkit-user-drag: none; 
+    /* NEW ADDITION END */
   }
   body {
     @apply bg-background text-foreground;
