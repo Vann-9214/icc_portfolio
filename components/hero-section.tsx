@@ -1,25 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+// BUG FIX START - Added useEffect import
+import { useRef, useState, useEffect } from "react";
+// BUG FIX END
 import { HERO_DATA, SPECIALTIES } from "@/lib/data";
-// NEW ADDITION START
-import {ElementVacuumEffect} from "./animations/vacuum-scroll";
-// NEW ADDITION END
+import { ElementVacuumEffect } from "./animations/vacuum-scroll";
 
 // Controls the staggered fade-in effect for the left column text and buttons
 const stagger = {
   container: {
     hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+    show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
   },
   item: {
-    hidden: { opacity: 0, y: 22 },
+    // BUG FIX START - Changed y from 22 to 60 so it exactly matches the scrolling appearance of FadeInOnScroll
+    hidden: { opacity: 0, y: 60 },
     show: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
     },
+    // BUG FIX END
   },
 };
 
@@ -27,6 +29,23 @@ export function HeroSection() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  
+  // NEW ADDITION START - State to track when the loader finishes
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Constantly check if the intro loader is still on screen
+    const checkLoader = setInterval(() => {
+      const loader = document.getElementById("intro-loader");
+      // If the loader is gone or starts fading out, trigger the Hero animations to sync exactly with the blue cursor
+      if (!loader || loader.getAttribute("data-fading") === "true") {
+        setIsLoaded(true);
+        if (!loader) clearInterval(checkLoader);
+      }
+    }, 100);
+    return () => clearInterval(checkLoader);
+  }, []);
+  // NEW ADDITION END
 
   // Calculates the 3D tilt effect based on mouse position over the profile card
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -52,16 +71,14 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
           
           {/* Left Column: Text */}
-          {/* NEW ADDITION START - Wrapped text column with vacuum effect and moved grid ordering here */}
           <ElementVacuumEffect className="order-2 lg:order-1">
-          {/* NEW ADDITION END */}
             <motion.div
               variants={stagger.container}
               initial="hidden"
-              animate="show"
-              // BUG FIX START - Removed order classes from inner div as they are handled by wrapper and removed select-none
-              className="relative space-y-7"
+              // BUG FIX START - Wait for the loader to finish before starting the stagger animation
+              animate={isLoaded ? "show" : "hidden"}
               // BUG FIX END
+              className="relative space-y-7 select-none"
             >
               {/* Soft background glow effect behind the text */}
               <div
@@ -132,21 +149,19 @@ export function HeroSection() {
                 />
               </motion.div>
             </motion.div>
-          {/* NEW ADDITION START */}
           </ElementVacuumEffect>
-          {/* NEW ADDITION END */}
 
           {/* Right Column: 3D Profile Card */}
-          {/* NEW ADDITION START - Wrapped 3D card with vacuum effect and moved sizing/ordering here */}
           <ElementVacuumEffect className="order-1 lg:order-2 w-full max-w-sm lg:max-w-none mx-auto">
-          {/* NEW ADDITION END */}
             <motion.div
               ref={cardRef}
+              // BUG FIX START - Wait for the loader to finish before animating the 3D card
               initial={{ opacity: 0, scale: 0.93 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={isLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.93 }}
+              // BUG FIX END
               transition={{
                 duration: 1,
-                delay: 0.1,
+                // Delay removed since we are already waiting for the isLoaded state
                 ease: [0.22, 1, 0.36, 1] as const,
               }}
               onMouseMove={handleMouseMove}
@@ -154,9 +169,7 @@ export function HeroSection() {
               onMouseLeave={handleMouseLeave}
               style={{ perspective: "1000px" }}
               data-cursor="interactive"
-              // BUG FIX START - Removed layout properties that were transferred to the ElementVacuumEffect wrapper and removed select-none
-              className="relative aspect-square w-full"
-              // BUG FIX END
+              className="relative aspect-square w-full select-none"
             >
               {/* Corner Tech Bracket Accents */}
               {[
@@ -243,20 +256,17 @@ export function HeroSection() {
                   />
 
                   {/* Profile Image Subject */}
-                  {/* BUG FIX START - Removed select-none and draggable={false} */}
                   <img
                     src="/Profile.svg"
                     alt="Ivan Clement P. Cañete"
-                    className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-[0_20px_20px_rgba(255,255,255,0.15)] z-0 pointer-events-none"
+                    draggable={false}
+                    className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-[0_20px_20px_rgba(255,255,255,0.15)] z-0 select-none pointer-events-none"
                     style={{ zIndex: 1 }}
                   />
-                  {/* BUG FIX END */}
                 </div>
               </div>
             </motion.div>
-          {/* NEW ADDITION START */}
           </ElementVacuumEffect>
-          {/* NEW ADDITION END */}
 
         </div>
       </div>
