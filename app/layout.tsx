@@ -3,11 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { Cursor } from "@/components/animations/cursor";
-import { TransitionProvider } from "@/components/transition.provider";
-import { Navigation } from "@/components/navigation";
-import { IntroLoader } from "@/components/intro-loader";
-import { BackgroundBlobs } from "@/components/background-blobs";
+import { ClientLayoutWrapper } from "./client-layout-wrapper";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -57,24 +53,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} bg-background`}
     >
       <body className="font-sans antialiased relative min-h-screen">
-                <BackgroundBlobs />
-        <IntroLoader />
-        <Cursor />
-
-        {/* DELETED: <InteractiveBackground /> */}
-
-        <TransitionProvider>
-          {/* Navigation lives here so it shares the transition context */}
-          <Navigation />
-
-          <div className="relative z-10">{children}</div>
-        </TransitionProvider>
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
