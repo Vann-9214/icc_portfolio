@@ -5,12 +5,10 @@ import { ABOUT_DATA } from "@/lib/data";
 
 export function AboutSection() {
   return (
-    // BUG FIX START - Removed manual 'select-none' and its comment since it's now handled globally in globals.css
     <section
       id="about"
       className="relative py-48 md:py-64 px-6 md:px-12 lg:px-24"
     >
-    // BUG FIX END
       <div className="w-full max-w-4xl mx-auto">
         {/* Scroll-triggered fade animation wrapper */}
         <FadeInOnScroll>

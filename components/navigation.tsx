@@ -67,7 +67,6 @@ export function Navigation() {
             href="/"
             className="text-black font-serif text-lg md:text-xl tracking-tight hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-all duration-300"
           >
-          // BUG FIX END
             ICC
           </a>
         )}
