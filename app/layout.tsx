@@ -65,6 +65,9 @@ export default function RootLayout({
       // NEW ADDITION START
       suppressHydrationWarning
       // NEW ADDITION END
+      // BUG FIX START
+      data-scroll-behavior="smooth"
+      // BUG FIX END
     >
       <body className="font-sans antialiased relative min-h-screen">
         {/* NEW ADDITION START */}
