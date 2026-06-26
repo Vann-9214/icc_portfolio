@@ -1,28 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-// BUG FIX START - Added useEffect import
 import { useRef, useState, useEffect } from "react";
-// BUG FIX END
 import { useTheme } from "next-themes";
 import { HERO_DATA, SPECIALTIES } from "@/lib/data";
 import { ElementVacuumEffect } from "./animations/vacuum-scroll";
+import { useLoaderFinished } from "@/hooks/use-loader-finished";
 
-// Controls the staggered fade-in effect for the left column text and buttons
+// Staggered fade-in variants for the left column text blocks
 const stagger = {
   container: {
     hidden: {},
     show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
   },
   item: {
-    // BUG FIX START - Changed y from 22 to 60 so it exactly matches the scrolling appearance of FadeInOnScroll
     hidden: { opacity: 0, y: 60 },
     show: {
       opacity: 1,
       y: 0,
       transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
     },
-    // BUG FIX END
   },
 };
 
@@ -30,51 +27,32 @@ export function HeroSection() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
-  
-  // NEW ADDITION START - State to track when the loader finishes
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    // Constantly check if the intro loader is still on screen
-    const checkLoader = setInterval(() => {
-      const loader = document.getElementById("intro-loader");
-      // If the loader is gone or starts fading out, trigger the Hero animations to sync exactly with the blue cursor
-      if (!loader || loader.getAttribute("data-fading") === "true") {
-        setIsLoaded(true);
-        if (!loader) clearInterval(checkLoader);
-      }
-    }, 100);
-    return () => clearInterval(checkLoader);
-  }, []);
-  // NEW ADDITION END
+  // Hold animations until the intro loader finishes so they sync with the cursor reveal
+  const isLoaded = useLoaderFinished();
 
-  // Theme-aware card styles — guard with themeMounted to avoid SSR hydration mismatch
+  // Defer theme reading until after hydration to avoid SSR mismatch
   const { resolvedTheme } = useTheme();
   const [themeMounted, setThemeMounted] = useState(false);
   useEffect(() => { setThemeMounted(true); }, []);
   const isDark = themeMounted && resolvedTheme === "dark";
 
-  // Card surface colours — inverted: light bg → black card, dark bg → white card
-  const cardBg         = isDark ? "#f0f4ff"          : "#08090f";
-  const cardBorder     = isDark ? "rgba(15,66,169,0.14)" : "rgba(255,255,255,0.07)";
-  const cardShadow     = isDark ? "shadow-blue-300/40"   : "shadow-blue-900/60";
-  // Decorative rotated box behind the card
-  const shadowBoxBg    = isDark ? "bg-[#0F42A9]/20"  : "bg-black/70";
-  // Ambient blobs inside the card
-  const blobPurple     = isDark ? "rgba(99,0,255,0.06)"  : "rgba(160,0,255,0.09)";
-  const blobCyan       = isDark ? "rgba(15,66,169,0.10)" : "rgba(0,220,255,0.08)";
-  // Shimmer line along the top edge
-  const shimmerLine    = isDark
+  // Card colors invert per mode: light bg → black card, dark bg → white card
+  const cardBg        = isDark ? "#f0f4ff"                : "#08090f";
+  const cardBorder    = isDark ? "rgba(15,66,169,0.14)"   : "rgba(255,255,255,0.07)";
+  const cardShadow    = isDark ? "shadow-blue-300/40"      : "shadow-blue-900/60";
+  const shadowBoxBg   = isDark ? "bg-[#0F42A9]/20"        : "bg-black/70";
+  const blobPurple    = isDark ? "rgba(99,0,255,0.06)"    : "rgba(160,0,255,0.09)";
+  const blobCyan      = isDark ? "rgba(15,66,169,0.10)"   : "rgba(0,220,255,0.08)";
+  const shimmerLine   = isDark
     ? "linear-gradient(90deg, transparent 0%, rgba(15,66,169,0.25) 50%, transparent 100%)"
     : "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.16) 50%, transparent 100%)";
-  // Mouse-glare highlight
-  const glareColor     = isDark ? "rgba(15,66,169,0.045)" : "rgba(255,255,255,0.055)";
-  // Profile image drop-shadow
-  const imgDropShadow  = isDark
+  const glareColor    = isDark ? "rgba(15,66,169,0.045)"  : "rgba(255,255,255,0.055)";
+  const imgDropShadow = isDark
     ? "drop-shadow-[0_20px_28px_rgba(15,66,169,0.22)]"
     : "drop-shadow-[0_20px_20px_rgba(255,255,255,0.12)]";
 
-  // Calculates the 3D tilt effect based on mouse position over the profile card
+  // Calculates the 3D tilt angle from the mouse position relative to the card center
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const card = cardRef.current;
     if (!card) return;
@@ -86,7 +64,7 @@ export function HeroSection() {
     setTilt({ x: -ny * 13, y: nx * 13 });
   }
 
-  // Resets the profile card flat when the mouse leaves the area
+  // Resets the card to flat when the mouse leaves
   function handleMouseLeave() {
     setIsHovered(false);
     setTilt({ x: 0, y: 0 });
@@ -96,18 +74,16 @@ export function HeroSection() {
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 pt-26 md:pt-22 pb-16 bg-transparent overflow-hidden">
       <div className="w-full max-w-6xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
-          
+
           {/* Left Column: Text */}
           <ElementVacuumEffect className="order-2 lg:order-1">
             <motion.div
               variants={stagger.container}
               initial="hidden"
-              // BUG FIX START - Wait for the loader to finish before starting the stagger animation
               animate={isLoaded ? "show" : "hidden"}
-              // BUG FIX END
               className="relative space-y-7 select-none"
             >
-              {/* Soft background glow effect behind the text */}
+              {/* Radial glow behind the text — matches the page bg per theme */}
               <div
                 className="absolute pointer-events-none -z-10 dark:[--glow-color:rgba(9,9,11,1)] dark:[--glow-color-mid:rgba(9,9,11,0.7)] [--glow-color:rgba(255,255,255,1)] [--glow-color-mid:rgba(255,255,255,0.7)]"
                 style={{
@@ -137,7 +113,7 @@ export function HeroSection() {
                 </div>
               </motion.div>
 
-              {/* Personal Description */}
+              {/* Description */}
               <motion.p
                 variants={stagger.item}
                 className="text-neutral-base text-base md:text-lg leading-relaxed max-w-[42ch]"
@@ -145,11 +121,8 @@ export function HeroSection() {
                 {HERO_DATA.description}
               </motion.p>
 
-              {/* Specialties Pills (Hardware, Software, Game Dev, IoT) */}
-              <motion.div
-                variants={stagger.item}
-                className="flex flex-wrap gap-2"
-              >
+              {/* Specialty Pills */}
+              <motion.div variants={stagger.item} className="flex flex-wrap gap-2">
                 {SPECIALTIES.map((s) => (
                   <span
                     key={s.label}
@@ -161,16 +134,12 @@ export function HeroSection() {
                 ))}
               </motion.div>
 
-              {/* Horizontal Animated Divider Line */}
+              {/* Animated horizontal divider */}
               <motion.div variants={stagger.item} className="overflow-hidden">
                 <motion.div
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{
-                    duration: 1,
-                    delay: 0.55,
-                    ease: [0.22, 1, 0.36, 1] as const,
-                  }}
+                  transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] as const }}
                   style={{ originX: 0 }}
                   className="h-px bg-gradient-to-r from-border via-border/50 to-transparent"
                 />
@@ -182,15 +151,9 @@ export function HeroSection() {
           <ElementVacuumEffect className="order-1 lg:order-2 w-full max-w-sm lg:max-w-none mx-auto">
             <motion.div
               ref={cardRef}
-              // BUG FIX START - Wait for the loader to finish before animating the 3D card
               initial={{ opacity: 0, scale: 0.93 }}
               animate={isLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.93 }}
-              // BUG FIX END
-              transition={{
-                duration: 1,
-                // Delay removed since we are already waiting for the isLoaded state
-                ease: [0.22, 1, 0.36, 1] as const,
-              }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] as const }}
               onMouseMove={handleMouseMove}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={handleMouseLeave}
@@ -198,7 +161,7 @@ export function HeroSection() {
               data-cursor="interactive"
               className="relative aspect-square w-full select-none"
             >
-              {/* Corner Tech Bracket Accents */}
+              {/* Corner bracket accents at each corner of the card */}
               {[
                 "top-0 left-0 border-t border-l rounded-tl-md",
                 "top-0 right-0 border-t border-r rounded-tr-md",
@@ -212,7 +175,7 @@ export function HeroSection() {
                 />
               ))}
 
-              {/* 3D Tilt Wrapper */}
+              {/* 3D tilt wrapper — applies rotateX/Y and subtle scale on hover */}
               <div
                 style={{
                   width: "100%",
@@ -223,15 +186,16 @@ export function HeroSection() {
                     : "transform 0.65s cubic-bezier(0.22,1,0.36,1)",
                   transformStyle: "preserve-3d",
                   position: "relative",
+                  willChange: "transform",
                 }}
               >
-                {/* Offset Decorative Background Card (The rotated shadow box) */}
+                {/* Rotated shadow box behind the card for depth */}
                 <div
                   style={{ transformStyle: "preserve-3d" }}
                   className={`absolute inset-0 rounded-3xl rotate-[3deg] opacity-50 ${shadowBoxBg}`}
                 />
 
-                {/* Main Foreground Card Surface */}
+                {/* Main card surface */}
                 <div
                   className={`absolute inset-0 rounded-2xl overflow-hidden shadow-2xl ${cardShadow} flex items-end justify-center`}
                   style={{
@@ -241,13 +205,13 @@ export function HeroSection() {
                     padding: "4rem 2rem 0",
                   }}
                 >
-                  {/* Top Edge Shimmer Effect */}
+                  {/* Shimmer line along the top edge */}
                   <div
                     className="absolute top-0 inset-x-0 h-px pointer-events-none"
                     style={{ background: shimmerLine }}
                   />
 
-                  {/* Ambient Color Blobs inside the card */}
+                  {/* Ambient color blobs — purple top-right, cyan bottom-left */}
                   <div
                     className="absolute top-1/4 -right-10 w-48 h-48 rounded-full pointer-events-none"
                     style={{
@@ -263,7 +227,7 @@ export function HeroSection() {
                     }}
                   />
 
-                  {/* Subtle brand-blue bottom gradient wash (dark bg → white card only) */}
+                  {/* Brand-blue bottom wash — only on dark bg (white card) */}
                   {isDark && (
                     <div
                       className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
@@ -273,7 +237,7 @@ export function HeroSection() {
                     />
                   )}
 
-                  {/* Interactive Light Glare that moves with the mouse */}
+                  {/* Glare highlight that follows mouse tilt */}
                   <div
                     style={{
                       position: "absolute",
@@ -281,14 +245,12 @@ export function HeroSection() {
                       background: `radial-gradient(circle at ${50 + tilt.y * 2.5}% ${50 - tilt.x * 2.5}%, ${glareColor} 0%, transparent 58%)`,
                       borderRadius: "inherit",
                       pointerEvents: "none",
-                      transition: isHovered
-                        ? "background 0.1s ease-out"
-                        : "background 0.65s ease-out",
+                      transition: isHovered ? "background 0.1s ease-out" : "background 0.65s ease-out",
                       zIndex: 10,
                     }}
                   />
 
-                  {/* Profile Image Subject */}
+                  {/* Profile image */}
                   <img
                     src="/Profile.svg"
                     alt="Ivan Clement P. Cañete"

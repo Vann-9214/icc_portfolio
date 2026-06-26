@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { FadeInOnScroll } from './animations/standard-scroll'
 import { ProjectGrid } from './project-grid'
 import { CaseStudyView } from './case-study-view'
-import { Navigation } from './navigation'
 
 const categories = [
   { id: 'all', label: 'All Projects' },
@@ -18,7 +17,6 @@ export function ProjectsView() {
 
   return (
     <>
-      <Navigation />
       <div className="pt-24 pb-12 md:pt-32 md:pb-24 px-6 md:px-12 lg:px-24">
         <div className="w-full max-w-7xl mx-auto">
           {/* Header */}

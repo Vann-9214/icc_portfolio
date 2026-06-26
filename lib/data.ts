@@ -8,6 +8,7 @@ export const HERO_DATA = {
   role: "- Computer Engineering Student",
   description:
     "Building complex systems from the ground up — engineering everything from physical circuits to polished web interfaces.",
+  email: "hello@example.com",
   socials: {
     github: {
       url: "https://github.com/Vann-9214",

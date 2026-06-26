@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useLoaderFinished } from "@/hooks/use-loader-finished";
 
 // Blue ring color per theme — always reads as blue regardless of bg
 const CURSOR_LIGHT = "#0F42A9"; // brand blue — visible on light bg
@@ -10,16 +11,18 @@ const CURSOR_DARK  = "#60a5fa"; // blue-400  — visible on dark bg
 export function Cursor() {
   const [initialPos, setInitialPos] = useState<{ x: number; y: number } | null>(null);
   const [hasMouse, setHasMouse] = useState(false);
- 
+
+  // Only render the cursor on devices that have a fine pointer (mouse/trackpad)
   useEffect(() => {
     const mql = window.matchMedia("(hover: hover) and (pointer: fine)");
     setHasMouse(mql.matches);
- 
+
     const handleMediaChange = (e: MediaQueryListEvent) => {
       setHasMouse(e.matches);
     };
     mql.addEventListener("change", handleMediaChange);
- 
+
+    // Wait for the first mouse move before positioning to avoid a flash at (0,0)
     const handleFirstMove = (e: MouseEvent) => {
       setInitialPos({ x: e.clientX - 20, y: e.clientY - 20 });
     };
@@ -29,10 +32,10 @@ export function Cursor() {
       mql.removeEventListener("change", handleMediaChange);
     };
   }, []);
- 
+
   if (!hasMouse) return null;
   if (!initialPos) return null;
- 
+
   return <ActiveCursor initialPos={initialPos} />;
 }
 
@@ -41,8 +44,8 @@ function ActiveCursor({ initialPos }: { initialPos: { x: number; y: number } }) 
   const cursorY = useMotionValue(initialPos.y);
 
   const [isHovered, setIsHovered] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  // Watch the .dark class on <html> — same source of truth as next-themes
+  const loaderFinished = useLoaderFinished();
+  // Tracks the current theme so cursor color updates when toggled
   const [isDark, setIsDark] = useState(false);
 
   const springConfig = { damping: 25, stiffness: 800 };
@@ -50,21 +53,9 @@ function ActiveCursor({ initialPos }: { initialPos: { x: number; y: number } }) 
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
-  useEffect(() => {
-    const checkLoader = setInterval(() => {
-      const loader = document.getElementById("intro-loader");
-      if (!loader || loader.getAttribute("data-fading") === "true") {
-        setIsLoading(false);
-        if (!loader) clearInterval(checkLoader);
-      }
-    }, 100);
-    return () => clearInterval(checkLoader);
-  }, []);
-
-  // Observe <html class> for dark/light changes without useTheme
+  // Watch the .dark class on <html> for theme changes — same source as next-themes
   useEffect(() => {
     const html = document.documentElement;
-    // Set initial value
     setIsDark(html.classList.contains("dark"));
     const observer = new MutationObserver(() => {
       setIsDark(html.classList.contains("dark"));
@@ -73,6 +64,7 @@ function ActiveCursor({ initialPos }: { initialPos: { x: number; y: number } }) 
     return () => observer.disconnect();
   }, []);
 
+  // Track cursor position and whether it's hovering over an interactive element
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX - 20);
@@ -107,7 +99,8 @@ function ActiveCursor({ initialPos }: { initialPos: { x: number; y: number } }) 
       initial={{ opacity: 0 }}
       animate={{
         scale: isHovered ? 0 : 1,
-        opacity: isLoading ? 0 : isDark ? 1 : 0.45,
+        // Reduce opacity on light mode so text beneath the cursor shows through
+        opacity: !loaderFinished ? 0 : isDark ? 1 : 0.45,
         backgroundColor: color,
       }}
       transition={{
@@ -120,11 +113,12 @@ function ActiveCursor({ initialPos }: { initialPos: { x: number; y: number } }) 
       style={{
         x: cursorXSpring,
         y: cursorYSpring,
-        // dark mode: "difference" inverts text beneath the cursor (text shows through)
-        // light mode: no blend mode — cursor stays pure blue without turning yellow
+        // difference blend on dark mode inverts text beneath the cursor circle
+        // normal on light mode keeps the blue from shifting to yellow
         mixBlendMode: isDark ? "difference" : "normal",
+        // drop-shadow traces the circle edge without blurring the fill itself
         filter: glowFilter,
-        willChange: "transform",
+        willChange: "transform, opacity, filter",
       }}
     />
   );

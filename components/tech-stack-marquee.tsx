@@ -5,10 +5,11 @@ import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
 import { FadeInOnScroll } from "./animations/standard-scroll";
 import { TECH_STACK } from "@/lib/data";
 
-const halfPoint = Math.ceil(TECH_STACK.length / 2);
-const firstHalf = TECH_STACK.slice(0, halfPoint);
+const halfPoint  = Math.ceil(TECH_STACK.length / 2);
+const firstHalf  = TECH_STACK.slice(0, halfPoint);
 const secondHalf = TECH_STACK.slice(halfPoint);
 
+// Wraps a value into the negative range [-width, 0] for seamless infinite looping
 function normalizeX(val: number, width: number): number {
   if (width === 0) return val;
   let n = val % width;
@@ -16,6 +17,7 @@ function normalizeX(val: number, width: number): number {
   return n;
 }
 
+// A single draggable, auto-scrolling row of tech stack cards with momentum coasting
 function DraggableRow({
   items,
   direction,
@@ -33,8 +35,10 @@ function DraggableRow({
   const coastVelocity = useRef(0);
   const isCoasting = useRef(false);
 
+  // Quadruple the items so there is always content to scroll into on both sides
   const duplicatedItems = [...items, ...items, ...items, ...items];
 
+  // Measure one copy's width and seed the starting offset for the rightward row
   useEffect(() => {
     if (innerRef.current) {
       const width = innerRef.current.scrollWidth / 4;
@@ -43,6 +47,7 @@ function DraggableRow({
     }
   }, [direction, x]);
 
+  // Auto-scroll each frame; coasting decays momentum after a drag ends
   useAnimationFrame((_, delta) => {
     if (contentWidth === 0 || isDragging.current) return;
 
@@ -86,6 +91,7 @@ function DraggableRow({
     [contentWidth, x],
   );
 
+  // On pointer release, convert recent velocity history into a coasting momentum
   const stopDragging = useCallback(() => {
     if (velocityHistory.current.length > 0) {
       const avg =
@@ -101,7 +107,6 @@ function DraggableRow({
   }, []);
 
   return (
-    // BUG FIX START - Removed select-none
     <div
       className="overflow-hidden cursor-grab active:cursor-grabbing"
       onPointerDown={handlePointerDown}
@@ -109,15 +114,12 @@ function DraggableRow({
       onPointerUp={stopDragging}
       onPointerCancel={stopDragging}
     >
-    // BUG FIX END
-      <motion.div ref={innerRef} className="flex w-max" style={{ x }}>
+      <motion.div ref={innerRef} className="flex w-max" style={{ x, willChange: "transform" }}>
         {duplicatedItems.map((tech, index) => (
           <div
             key={`${tech.name}-${index}`}
             className={[
-              // BUG FIX START - Removed select-none
               "flex items-center gap-4 px-8 md:px-12 py-6 mx-3 rounded-xl flex-shrink-0",
-              // BUG FIX END
               "relative overflow-hidden",
               "border border-white/60 bg-white/[0.04] shadow-sm",
               "transition-all duration-150 ease-out",
@@ -125,6 +127,7 @@ function DraggableRow({
               "active:scale-[0.97]",
             ].join(" ")}
           >
+            {/* Top-edge shimmer line */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
@@ -143,6 +146,7 @@ function DraggableRow({
 }
 
 export function TechStackMarquee() {
+  // Fade mask applied to both the header and row containers so content dissolves at the edges
   const blurMask = {
     maskImage:
       "linear-gradient(to bottom, transparent, black 32px, black calc(100% - 32px), transparent)",
@@ -152,19 +156,16 @@ export function TechStackMarquee() {
 
   return (
     <section className="relative py-32 md:py-48 overflow-hidden">
-      {/* ── Text header blur — same fade-mask trick, no hard edges ── */}
-      <div
-        className="relative mb-20 py-8 backdrop-blur-sm bg-white/[0.01]"
-        style={blurMask}
-      >
+
+      {/* Section header with fade mask */}
+      <div className="relative mb-20 py-8 bg-transparent" style={blurMask}>
         <FadeInOnScroll className="relative px-6 md:px-12 lg:px-24">
           <div className="relative">
-            {/* BUG FIX START - Removed select-none */}
+            {/* Large decorative watermark behind the heading */}
             <span
               aria-hidden="true"
               className="pointer-events-none absolute -top-3 left-0 text-[5rem] md:text-[8rem] font-black tracking-tighter leading-none text-white/[0.028]"
             >
-            {/* BUG FIX END */}
               STACK
             </span>
 
@@ -187,17 +188,15 @@ export function TechStackMarquee() {
         </FadeInOnScroll>
       </div>
 
-      {/* ── Rows blur — unchanged ── */}
-      <div
-        className="relative space-y-6 backdrop-blur-sm bg-white/[0.01] py-8"
-        style={blurMask}
-      >
+      {/* Two rows — opposite directions — with left/right edge fade gradients */}
+      <div className="relative space-y-6 bg-transparent py-8" style={blurMask}>
         <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-28 bg-gradient-to-r from-background to-transparent md:w-72" />
         <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-28 bg-gradient-to-l from-background to-transparent md:w-72" />
 
-        <DraggableRow items={firstHalf} direction="left" />
+        <DraggableRow items={firstHalf}  direction="left"  />
         <DraggableRow items={secondHalf} direction="right" />
       </div>
+
     </section>
   );
 }

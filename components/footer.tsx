@@ -3,6 +3,7 @@
 import { FadeInOnScroll } from "./animations/standard-scroll";
 import { GitHubLogoIcon, LinkedInLogoIcon } from "@radix-ui/react-icons";
 import { Mail } from "lucide-react";
+import { HERO_DATA } from "@/lib/data";
 
 export function Footer() {
   return (
@@ -24,12 +25,12 @@ export function Footer() {
                 }
               </p>
               <a
-                href="mailto:hello@example.com"
+                href={`mailto:${HERO_DATA.email}`}
                 className="inline-flex items-center gap-3 text-foreground hover:text-foreground/70 transition-colors duration-300 mt-4"
               >
                 <Mail className="w-5 h-5" />
                 <span className="text-lg underline underline-offset-4">
-                  hello@example.com
+                  {HERO_DATA.email}
                 </span>
               </a>
             </div>
@@ -41,7 +42,7 @@ export function Footer() {
               </span>
               <div className="flex gap-4">
                 <a
-                  href="https://github.com"
+                  href={HERO_DATA.socials.github.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-4 border border-border rounded-lg text-foreground hover:bg-muted/50 transition-colors duration-300"
@@ -50,7 +51,7 @@ export function Footer() {
                   <GitHubLogoIcon className="w-6 h-6" />
                 </a>
                 <a
-                  href="https://linkedin.com"
+                  href={HERO_DATA.socials.linkedin.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-4 border border-border rounded-lg text-foreground hover:bg-muted/50 transition-colors duration-300"

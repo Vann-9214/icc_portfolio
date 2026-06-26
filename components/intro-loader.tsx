@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
+import { DARK_COLOR, LIGHT_COLOR, BG_DARK, BG_LIGHT } from "@/lib/constants";
 
-// ─── Keyframes ─────────────────────────────────────────────────────────────────
+// CSS keyframe animations injected as a style tag
 const KEYFRAMES = `
   @keyframes spinCW  { to { transform: rotate(360deg);  } }
   @keyframes spinCCW { to { transform: rotate(-360deg); } }
@@ -34,15 +35,13 @@ const KEYFRAMES = `
     0%, 60%, 100% { transform: scale(0.55); opacity: 0.3;  }
     30%           { transform: scale(1.4);  opacity: 0.85; }
   }
-  /* NEW ADDITION START */
   @keyframes revealViewport {
     0%   { clip-path: circle(0px at 50% 50%); }
     100% { clip-path: circle(150vw at 50% 50%); }
   }
-  /* NEW ADDITION END */
 `;
 
-// ─── Particles ─────────────────────────────────────────────────────────────────
+// Ambient floating dot positions for the background particle effect
 const PARTICLES: { x: string; y: string; s: number; d: number; dur: number; drift: string }[] = [
   { x: "10%", y: "72%", s: 2,   d: 0,   dur: 7,   drift: "16px"  },
   { x: "30%", y: "80%", s: 2.5, d: 1.3, dur: 8,   drift: "-18px" },
@@ -52,47 +51,40 @@ const PARTICLES: { x: string; y: string; s: number; d: number; dur: number; drif
   { x: "20%", y: "30%", s: 2,   d: 0.9, dur: 7,   drift: "-20px" },
 ];
 
+// Generates a radial-gradient mask that isolates a 1px ring at the given radius
 const ringMask = (px: number) =>
   `radial-gradient(farthest-side, transparent calc(100% - ${px + 0.5}px), white calc(100% - ${px}px))`;
 
 const ARC_R   = 100;
 const ARC_CIR = 2 * Math.PI * ARC_R;
 
-// Matches transition.provider.tsx exactly
-const DARK_COLOR  = "#0C0D0F"; // near-black, matches dark bg with barely-there blue hint
-const LIGHT_COLOR = "#EEF3FC"; // near-white with soft blue tint
 
-// Dark-mode bg gradient (matches globals.css .dark)
-const BG_DARK  = "radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #09090b 0%, #18181b 100%)";
-// Light-mode bg gradient (matches globals.css :root)
-const BG_LIGHT = "radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%)";
 
-// ─── Component ─────────────────────────────────────────────────────────────────
 export function IntroLoader() {
   const [mounted,         setMounted]         = useState(true);
   const [fading,          setFading]          = useState(false);
   const [circleExpanding, setCircleExpanding] = useState(false);
   const [progress,        setProgress]        = useState(0);
   const [opacity,         setOpacity]         = useState(1);
-  // Tracks whether we've hydrated on the client — prevents SSR/client mismatch
+  // Deferred until client hydration to prevent SSR/client style mismatch
   const [themeMounted,    setThemeMounted]    = useState(false);
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolvedTheme } = useTheme();
 
-  // Only read resolvedTheme after client hydration to avoid SSR mismatch
   useEffect(() => { setThemeMounted(true); }, []);
 
-  // Derive theme-aware values — fall back to light until client is ready
-  const isDark   = themeMounted && resolvedTheme === "dark";
-  const bgStyle  = isDark ? BG_DARK  : BG_LIGHT;
-  const glowBg   = isDark
+  // Theme-derived values — fall back to light until hydration is confirmed
+  const isDark     = themeMounted && resolvedTheme === "dark";
+  const bgStyle    = isDark ? BG_DARK  : BG_LIGHT;
+  const glowBg     = isDark
     ? "radial-gradient(ellipse at center, rgba(9,9,11,0.85) 0%, rgba(9,9,11,0.2) 55%, transparent 75%)"
     : "radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 55%, transparent 75%)";
+  // Exit wave order inverts: dark mode → light first, dark second; light mode → dark first, light second
   const wave1Color = isDark ? LIGHT_COLOR : DARK_COLOR;
   const wave2Bg    = isDark ? BG_DARK     : BG_LIGHT;
 
-  // Scroll lock
+  // Lock body scroll while the loader is visible
   useEffect(() => {
     if (!mounted) return;
     const prev = document.body.style.overflow;
@@ -100,9 +92,11 @@ export function IntroLoader() {
     return () => { document.body.style.overflow = prev; };
   }, [mounted]);
 
-  // Interactive Space-Bend Canvas Engine
+  // Interactive space-bend canvas — dots repel and shift color toward brand blue near the cursor.
+  // Skipped on mobile (pointer: coarse) — the nested draw loop is too heavy for low-end GPUs.
   useEffect(() => {
     if (!mounted) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -111,7 +105,7 @@ export function IntroLoader() {
     let w = window.innerWidth;
     let h = window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
-    
+
     const resizeCanvas = () => {
       w = window.innerWidth;
       h = window.innerHeight;
@@ -142,8 +136,8 @@ export function IntroLoader() {
     window.addEventListener("resize", resizeCanvas);
 
     let animId: number;
-    const spacing = 38; 
-    const maxDist = 380; 
+    const spacing = 38;
+    const maxDist = 380;
 
     const draw = () => {
       mx += (targetMx - mx) * 0.12;
@@ -161,28 +155,26 @@ export function IntroLoader() {
           let renderY = y;
           let radius = 1.5;
 
-          // Base grey: rgba(160, 160, 160, 0.25)
+          // Base dot color: neutral grey at low opacity
           let r = 160, g = 160, b = 160, a = 0.25;
 
           if (dist < maxDist) {
             const force = Math.pow((maxDist - dist) / maxDist, 1.5);
 
+            // Repel dots away from cursor
             renderX -= (dx / dist) * force * 55;
             renderY -= (dy / dist) * force * 55;
-
             radius = 1.5 * (1 - force * 0.5);
 
+            // Shift color toward brand blue as the dot gets closer to cursor
             const colorForce = Math.min(1, force * 1.2);
-
-            r = 160 - (160 - 15) * colorForce;
-            g = 160 - (160 - 66) * colorForce;
-            b = 160 - (160 - 185) * colorForce; 
-            
+            r = 160 - (160 - 15)  * colorForce;
+            g = 160 - (160 - 66)  * colorForce;
+            b = 160 - (160 - 185) * colorForce;
             a = 0.25 + (0.85 - 0.25) * colorForce;
           }
 
           ctx.fillStyle = `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
-
           ctx.beginPath();
           ctx.arc(renderX, renderY, radius, 0, Math.PI * 2);
           ctx.fill();
@@ -201,7 +193,7 @@ export function IntroLoader() {
     };
   }, [mounted]);
 
-  // Progress ticker
+  // Simulates a realistic loading progress — fast at first, then slows near 100
   useEffect(() => {
     let cur = 0;
     const t0 = Date.now();
@@ -218,7 +210,7 @@ export function IntroLoader() {
     return () => clearInterval(id);
   }, []);
 
-  // Exit sequence
+  // Triggers the exit animation sequence once progress hits 100
   useEffect(() => {
     if (progress !== 100) return;
     const t1 = setTimeout(() => setCircleExpanding(true),            300);
@@ -235,11 +227,11 @@ export function IntroLoader() {
 
       <div
         id="intro-loader"
+        data-fading={fading ? "true" : undefined}
         style={{
           position: "fixed", inset: 0, zIndex: 9999,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          /* Synced to globals.css — swaps between light and dark bg gradients */
           background: bgStyle,
           overflow: "hidden",
           opacity,
@@ -249,19 +241,17 @@ export function IntroLoader() {
         }}
       >
 
+        {/* Space-bend dot grid canvas */}
         <canvas
           ref={canvasRef}
           style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            zIndex: 0,
-            width: "100%",
-            height: "100%"
+            position: "absolute", inset: 0,
+            pointerEvents: "none", zIndex: 0,
+            width: "100%", height: "100%"
           }}
         />
 
-        {/* Floating particles — subtle, barely there */}
+        {/* Floating brand-blue ambient particles */}
         {PARTICLES.map((p, i) => (
           <div
             key={i}
@@ -276,31 +266,24 @@ export function IntroLoader() {
           />
         ))}
 
-        {/* BUG FIX START - Re-centered the blur directly in the middle, increased height, and bumped the mask/blur radius to reach fully over the top of the logo */}
+        {/* Frosted elliptical blur centered behind the logo */}
         <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)", 
-          width: "450px",
-          height: "550px", 
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "450px", height: "550px",
           background: glowBg,
-          backdropFilter: "blur(12px)", 
+          backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           WebkitMaskImage: "radial-gradient(ellipse at center, black 35%, transparent 68%)",
           maskImage: "radial-gradient(ellipse at center, black 35%, transparent 68%)",
-          borderRadius: "50%",
-          zIndex: 5,
-          pointerEvents: "none",
+          borderRadius: "50%", zIndex: 5, pointerEvents: "none",
         }} />
-        {/* BUG FIX END */}
 
-        {/* EXIT — two expanding circles, order inverts per theme:
-              light mode: dark first → light second
-              dark  mode: light first → dark second */}
+        {/* Exit animation — two circles expand from center:
+            light mode: dark first → light second
+            dark  mode: light first → dark second */}
         {circleExpanding && (
           <>
-            {/* Wave 1: solid color circle expanding from center */}
             <div style={{
               position: "absolute", top: "50%", left: "50%",
               width: 40, height: 40, borderRadius: "50%",
@@ -308,7 +291,6 @@ export function IntroLoader() {
               zIndex: 99998, pointerEvents: "none",
               animation: "expandCircle 2.2s both cubic-bezier(0.65,0,0.35,1)",
             }} />
-            {/* Wave 2: full-viewport div with bg gradient matching the destination page */}
             <div style={{
               position: "absolute", inset: 0,
               background: wave2Bg,
@@ -318,7 +300,7 @@ export function IntroLoader() {
           </>
         )}
 
-        {/* ── LOGO + RINGS ──────────────────────────────────────────────────── */}
+        {/* Logo + spinning ring system */}
         <div style={{
           position: "relative", width: 210, height: 210,
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -326,7 +308,7 @@ export function IntroLoader() {
           zIndex: 10,
         }}>
 
-          {/* SVG progress arc */}
+          {/* SVG arc that fills with progress */}
           <svg
             viewBox="0 0 210 210"
             style={{
@@ -353,13 +335,13 @@ export function IntroLoader() {
             />
           </svg>
 
-          {/* Outer base ring */}
+          {/* Outer decorative ring */}
           <div style={{
             position: "absolute", inset: 16, borderRadius: "50%",
             border: "1px solid rgba(15,66,169,0.08)",
           }} />
 
-          {/* CW comet */}
+          {/* Clockwise comet spinner */}
           <div style={{
             position: "absolute", inset: 16, borderRadius: "50%",
             background: `conic-gradient(from 0deg,
@@ -373,13 +355,13 @@ export function IntroLoader() {
             willChange: "transform",
           }} />
 
-          {/* Inner base ring */}
+          {/* Inner decorative ring */}
           <div style={{
             position: "absolute", inset: 46, borderRadius: "50%",
             border: "1px solid rgba(15,66,169,0.06)",
           }} />
 
-          {/* CCW counter-spinner */}
+          {/* Counter-clockwise inner spinner */}
           <div style={{
             position: "absolute", inset: 46, borderRadius: "50%",
             background: `conic-gradient(from 90deg,
@@ -391,11 +373,8 @@ export function IntroLoader() {
             willChange: "transform",
           }} />
 
-          {/* ICC shimmer */}
-          <div style={{
-            position: "relative", zIndex: 10,
-            filter: "drop-shadow(0 0 20px rgba(15,66,169,0.4))",
-          }}>
+          {/* ICC logotype with shimmer gradient animation */}
+          <div style={{ position: "relative", zIndex: 10, filter: "drop-shadow(0 0 20px rgba(15,66,169,0.4))" }}>
             <span style={{
               display: "block",
               fontSize: "2.9rem", fontWeight: 700, letterSpacing: "0.26em",
@@ -411,11 +390,9 @@ export function IntroLoader() {
           </div>
         </div>
 
-        {/* ── LOADING INDICATOR ─────────────────────────────────────────────── */}
+        {/* Progress dots — fill in as each 25% milestone is reached */}
         <div style={{
-          marginTop: 44,
-          display: "flex", gap: 9,
-          alignItems: "center",
+          marginTop: 44, display: "flex", gap: 9, alignItems: "center",
           animation: "fadeUp 1s ease-out 0.8s both",
           position: "relative", zIndex: 10,
         }}>

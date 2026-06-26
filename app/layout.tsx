@@ -1,12 +1,9 @@
-// app/layout.tsx
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ClientLayoutWrapper } from "./client-layout-wrapper";
-// NEW ADDITION START
 import { ThemeProvider } from "@/components/theme-provider";
-// NEW ADDITION END
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -30,18 +27,9 @@ export const metadata: Metadata = {
   generator: "v0.app",
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
+      { url: "/icon-light-32x32.png", media: "(prefers-color-scheme: light)" },
+      { url: "/icon-dark-32x32.png",  media: "(prefers-color-scheme: dark)"  },
+      { url: "/icon.svg", type: "image/svg+xml" },
     ],
     apple: "/apple-icon.png",
   },
@@ -56,34 +44,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  
   return (
+    // suppressHydrationWarning prevents a mismatch caused by next-themes injecting the .dark class server-side
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} bg-background`}
-      // NEW ADDITION START
       suppressHydrationWarning
-      // NEW ADDITION END
-      // BUG FIX START
       data-scroll-behavior="smooth"
-      // BUG FIX END
     >
       <body className="font-sans antialiased relative min-h-screen">
-        {/* NEW ADDITION START */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-        {/* NEW ADDITION END */}
           <ClientLayoutWrapper>
             {children}
           </ClientLayoutWrapper>
-        {/* NEW ADDITION START */}
         </ThemeProvider>
-        {/* NEW ADDITION END */}
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>

@@ -60,7 +60,7 @@
 
   /* ── Brand palette (Figma) ──
      Accessible as Tailwind utilities: bg-brand-blue, text-brand-gold, etc.
-     These are defined directly here so Tailwind compiles them as static values. */
+     Defined here as static values so Tailwind compiles them at build time. */
   --color-brand-blue: #0F42A9;
   --color-brand-blue-dark: #243B69;
   --color-brand-navy: #1E2533;
@@ -69,128 +69,110 @@
   --color-brand-accent: #3b82f6;
 }
 
-/* ── Single :root block — no duplicates, no !important ──
-   This is the only source of truth for all CSS custom properties. */
+/* ── Light mode token values (default) ── */
 :root {
   --radius: 0.5rem;
 
-  /* Base */
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Card */
   --card: #f4f4f5;
   --card-foreground: #171717;
 
-  /* Popover */
   --popover: #ffffff;
   --popover-foreground: #171717;
 
-  /* Primary — your brand blue from Figma, wired to Tailwind's bg-primary / text-primary */
+  /* Brand blue from Figma — wired to bg-primary / text-primary */
   --primary: #0F42A9;
   --primary-foreground: #ffffff;
 
-  /* Secondary */
   --secondary: #e4e4e7;
   --secondary-foreground: #171717;
 
-  /* Muted */
   --muted: #f4f4f5;
   --muted-foreground: #71717a;
 
-  /* Accent */
   --accent: #e4e4e7;
   --accent-foreground: #171717;
 
-  /* Destructive */
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  /* Border / Input / Ring */
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: #0F42A9;
 
-  /* NEW ADDITION START */
-  /* Gradient variables for dynamic theme switching */
+  /* Background gradient variables — consumed by the body rule below */
   --bg-gradient-center: #FFFFFF;
   --bg-gradient-edge: #EEF3FC;
   --bg-gradient-spot: rgba(15, 66, 169, 0.09);
-  /* NEW ADDITION END */
 }
 
-/* ── Display P3 override ──
-   Browsers that support wide-gamut P3 use these instead of sRGB hex above.
-   This is what makes colors match Figma (which renders in P3 by default).
-   Browsers that don't support P3 fall back to the :root hex values above. */
+/* ── Wide-gamut P3 override ──
+   Browsers that support display-p3 use these instead of the sRGB hex above,
+   matching how Figma renders colors by default. Non-P3 browsers ignore this block. */
 @supports (color: color(display-p3 0 0 0)) {
   :root {
-    --primary: color(display-p3 0.059 0.259 0.663);   /* #0F42A9 */
-    --ring:    color(display-p3 0.059 0.259 0.663);
+    --primary:    color(display-p3 0.059 0.259 0.663); /* #0F42A9 */
+    --ring:       color(display-p3 0.059 0.259 0.663);
     --foreground: color(display-p3 0.090 0.090 0.090); /* #171717 */
   }
 }
 
-/* NEW ADDITION START */
-/* The .dark class overrides the :root variables when dark mode is enabled */
+/* ── Dark mode token overrides ──
+   next-themes adds .dark to <html>; this block takes over all token values. */
 .dark {
   --background: #09090b;
   --foreground: #fafafa;
-  
+
   --card: #09090b;
   --card-foreground: #fafafa;
-  
+
   --popover: #09090b;
   --popover-foreground: #fafafa;
-  
-  --primary: #3b82f6; 
+
+  --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  
+
   --secondary: #27272a;
   --secondary-foreground: #fafafa;
-  
+
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
-  
+
   --accent: #27272a;
   --accent-foreground: #fafafa;
-  
+
   --destructive: #7f1d1d;
   --destructive-foreground: #fafafa;
-  
+
   --border: #27272a;
   --input: #27272a;
   --ring: #3b82f6;
 
-  /* Swap the background gradient specifically for dark mode */
+  /* Background gradient variables — dark equivalents */
   --bg-gradient-center: #09090b;
-  --bg-gradient-edge: #18181b; 
-  --bg-gradient-spot: rgba(59, 130, 246, 0.05); 
+  --bg-gradient-edge: #18181b;
+  --bg-gradient-spot: rgba(59, 130, 246, 0.05);
 }
-/* NEW ADDITION END */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    /* NEW ADDITION START */
-    -webkit-user-select: none; 
+    /* Disable text and element selection / drag globally — re-enable selectively where needed */
+    -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none; 
-    -webkit-user-drag: none; 
-    /* NEW ADDITION END */
+    user-select: none;
+    -webkit-user-drag: none;
   }
   body {
     @apply bg-background text-foreground;
-    /* NEW ADDITION START */
-    /* BUG FIX START */
-    /* Replaced hardcoded white hex values with our new dynamic CSS variables */
-    background: radial-gradient(ellipse at 50% 45%, var(--bg-gradient-center) 0%, var(--bg-gradient-edge) 100%);
-    background-image: 
+    /* Radial background gradient that adapts to the current theme via CSS variables.
+       Two layers: a subtle color spot at center + a large elliptical base gradient. */
+    background-image:
       radial-gradient(circle, var(--bg-gradient-spot) 0%, transparent 70%),
       radial-gradient(ellipse at 50% 45%, var(--bg-gradient-center) 0%, var(--bg-gradient-edge) 100%);
-    /* BUG FIX END */
-    /* NEW ADDITION END */
   }
   html {
     @apply font-sans scroll-smooth;
