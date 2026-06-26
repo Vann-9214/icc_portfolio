@@ -110,6 +110,13 @@
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: #0F42A9;
+
+  /* NEW ADDITION START */
+  /* Gradient variables for dynamic theme switching */
+  --bg-gradient-center: #FFFFFF;
+  --bg-gradient-edge: #EEF3FC;
+  --bg-gradient-spot: rgba(15, 66, 169, 0.09);
+  /* NEW ADDITION END */
 }
 
 /* ── Display P3 override ──
@@ -123,6 +130,44 @@
     --foreground: color(display-p3 0.090 0.090 0.090); /* #171717 */
   }
 }
+
+/* NEW ADDITION START */
+/* The .dark class overrides the :root variables when dark mode is enabled */
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  
+  --card: #09090b;
+  --card-foreground: #fafafa;
+  
+  --popover: #09090b;
+  --popover-foreground: #fafafa;
+  
+  --primary: #3b82f6; 
+  --primary-foreground: #ffffff;
+  
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+  
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #3b82f6;
+
+  /* Swap the background gradient specifically for dark mode */
+  --bg-gradient-center: #09090b;
+  --bg-gradient-edge: #18181b; 
+  --bg-gradient-spot: rgba(59, 130, 246, 0.05); 
+}
+/* NEW ADDITION END */
 
 @layer base {
   * {
@@ -138,10 +183,13 @@
   body {
     @apply bg-background text-foreground;
     /* NEW ADDITION START */
-    background: radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%);
+    /* BUG FIX START */
+    /* Replaced hardcoded white hex values with our new dynamic CSS variables */
+    background: radial-gradient(ellipse at 50% 45%, var(--bg-gradient-center) 0%, var(--bg-gradient-edge) 100%);
     background-image: 
-      radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%),
-      radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%);
+      radial-gradient(circle, var(--bg-gradient-spot) 0%, transparent 70%),
+      radial-gradient(ellipse at 50% 45%, var(--bg-gradient-center) 0%, var(--bg-gradient-edge) 100%);
+    /* BUG FIX END */
     /* NEW ADDITION END */
   }
   html {

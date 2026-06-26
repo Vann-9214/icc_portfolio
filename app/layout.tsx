@@ -4,6 +4,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ClientLayoutWrapper } from "./client-layout-wrapper";
+// NEW ADDITION START
+import { ThemeProvider } from "@/components/theme-provider";
+// NEW ADDITION END
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -59,11 +62,25 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} bg-background`}
+      // NEW ADDITION START
+      suppressHydrationWarning
+      // NEW ADDITION END
     >
       <body className="font-sans antialiased relative min-h-screen">
-        <ClientLayoutWrapper>
-          {children}
-        </ClientLayoutWrapper>
+        {/* NEW ADDITION START */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+        {/* NEW ADDITION END */}
+          <ClientLayoutWrapper>
+            {children}
+          </ClientLayoutWrapper>
+        {/* NEW ADDITION START */}
+        </ThemeProvider>
+        {/* NEW ADDITION END */}
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
