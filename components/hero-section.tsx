@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 // BUG FIX START - Added useEffect import
 import { useRef, useState, useEffect } from "react";
 // BUG FIX END
+import { useTheme } from "next-themes";
 import { HERO_DATA, SPECIALTIES } from "@/lib/data";
 import { ElementVacuumEffect } from "./animations/vacuum-scroll";
 
@@ -47,6 +48,32 @@ export function HeroSection() {
   }, []);
   // NEW ADDITION END
 
+  // Theme-aware card styles — guard with themeMounted to avoid SSR hydration mismatch
+  const { resolvedTheme } = useTheme();
+  const [themeMounted, setThemeMounted] = useState(false);
+  useEffect(() => { setThemeMounted(true); }, []);
+  const isDark = themeMounted && resolvedTheme === "dark";
+
+  // Card surface colours — inverted: light bg → black card, dark bg → white card
+  const cardBg         = isDark ? "#f0f4ff"          : "#08090f";
+  const cardBorder     = isDark ? "rgba(15,66,169,0.14)" : "rgba(255,255,255,0.07)";
+  const cardShadow     = isDark ? "shadow-blue-300/40"   : "shadow-blue-900/60";
+  // Decorative rotated box behind the card
+  const shadowBoxBg    = isDark ? "bg-[#0F42A9]/20"  : "bg-black/70";
+  // Ambient blobs inside the card
+  const blobPurple     = isDark ? "rgba(99,0,255,0.06)"  : "rgba(160,0,255,0.09)";
+  const blobCyan       = isDark ? "rgba(15,66,169,0.10)" : "rgba(0,220,255,0.08)";
+  // Shimmer line along the top edge
+  const shimmerLine    = isDark
+    ? "linear-gradient(90deg, transparent 0%, rgba(15,66,169,0.25) 50%, transparent 100%)"
+    : "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.16) 50%, transparent 100%)";
+  // Mouse-glare highlight
+  const glareColor     = isDark ? "rgba(15,66,169,0.045)" : "rgba(255,255,255,0.055)";
+  // Profile image drop-shadow
+  const imgDropShadow  = isDark
+    ? "drop-shadow-[0_20px_28px_rgba(15,66,169,0.22)]"
+    : "drop-shadow-[0_20px_20px_rgba(255,255,255,0.12)]";
+
   // Calculates the 3D tilt effect based on mouse position over the profile card
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const card = cardRef.current;
@@ -82,11 +109,11 @@ export function HeroSection() {
             >
               {/* Soft background glow effect behind the text */}
               <div
-                className="absolute pointer-events-none -z-10"
+                className="absolute pointer-events-none -z-10 dark:[--glow-color:rgba(9,9,11,1)] dark:[--glow-color-mid:rgba(9,9,11,0.7)] [--glow-color:rgba(255,255,255,1)] [--glow-color-mid:rgba(255,255,255,0.7)]"
                 style={{
                   inset: "-80px -100px",
                   background:
-                    "radial-gradient(ellipse 70% 75% at 42% 48%, rgba(255,255,255,1) 25%, rgba(255,255,255,0.7) 55%, transparent 100%)",
+                    "radial-gradient(ellipse 70% 75% at 42% 48%, var(--glow-color) 25%, var(--glow-color-mid) 55%, transparent 100%)",
                   filter: "blur(18px)",
                 }}
               />
@@ -201,14 +228,15 @@ export function HeroSection() {
                 {/* Offset Decorative Background Card (The rotated shadow box) */}
                 <div
                   style={{ transformStyle: "preserve-3d" }}
-                  className="absolute inset-0 bg-black rounded-3xl rotate-[3deg] opacity-50"
+                  className={`absolute inset-0 rounded-3xl rotate-[3deg] opacity-50 ${shadowBoxBg}`}
                 />
 
                 {/* Main Foreground Card Surface */}
                 <div
-                  className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl shadow-blue-900/60 flex items-end justify-center bg-black"
+                  className={`absolute inset-0 rounded-2xl overflow-hidden shadow-2xl ${cardShadow} flex items-end justify-center`}
                   style={{
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    backgroundColor: cardBg,
+                    border: `1px solid ${cardBorder}`,
                     transformStyle: "preserve-3d",
                     padding: "4rem 2rem 0",
                   }}
@@ -216,36 +244,41 @@ export function HeroSection() {
                   {/* Top Edge Shimmer Effect */}
                   <div
                     className="absolute top-0 inset-x-0 h-px pointer-events-none"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)",
-                    }}
+                    style={{ background: shimmerLine }}
                   />
 
                   {/* Ambient Color Blobs inside the card */}
                   <div
                     className="absolute top-1/4 -right-10 w-48 h-48 rounded-full pointer-events-none"
                     style={{
-                      background:
-                        "radial-gradient(circle, rgba(160,0,255,0.08) 0%, transparent 70%)",
+                      background: `radial-gradient(circle, ${blobPurple} 0%, transparent 70%)`,
                       filter: "blur(24px)",
                     }}
                   />
                   <div
                     className="absolute bottom-1/3 -left-8 w-40 h-40 rounded-full pointer-events-none"
                     style={{
-                      background:
-                        "radial-gradient(circle, rgba(0,220,255,0.07) 0%, transparent 70%)",
+                      background: `radial-gradient(circle, ${blobCyan} 0%, transparent 70%)`,
                       filter: "blur(20px)",
                     }}
                   />
+
+                  {/* Subtle brand-blue bottom gradient wash (dark bg → white card only) */}
+                  {isDark && (
+                    <div
+                      className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
+                      style={{
+                        background: "linear-gradient(to top, rgba(15,66,169,0.07) 0%, transparent 100%)",
+                      }}
+                    />
+                  )}
 
                   {/* Interactive Light Glare that moves with the mouse */}
                   <div
                     style={{
                       position: "absolute",
                       inset: 0,
-                      background: `radial-gradient(circle at ${50 + tilt.y * 2.5}% ${50 - tilt.x * 2.5}%, rgba(255,255,255,0.055) 0%, transparent 58%)`,
+                      background: `radial-gradient(circle at ${50 + tilt.y * 2.5}% ${50 - tilt.x * 2.5}%, ${glareColor} 0%, transparent 58%)`,
                       borderRadius: "inherit",
                       pointerEvents: "none",
                       transition: isHovered
@@ -260,7 +293,7 @@ export function HeroSection() {
                     src="/Profile.svg"
                     alt="Ivan Clement P. Cañete"
                     draggable={false}
-                    className="relative w-full h-full object-contain object-bottom origin-bottom drop-shadow-[0_20px_20px_rgba(255,255,255,0.15)] z-0 select-none pointer-events-none"
+                    className={`relative w-full h-full object-contain object-bottom origin-bottom z-0 select-none pointer-events-none ${imgDropShadow}`}
                     style={{ zIndex: 1 }}
                   />
                 </div>

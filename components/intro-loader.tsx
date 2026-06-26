@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 // ─── Keyframes ─────────────────────────────────────────────────────────────────
 const KEYFRAMES = `
@@ -57,6 +58,15 @@ const ringMask = (px: number) =>
 const ARC_R   = 100;
 const ARC_CIR = 2 * Math.PI * ARC_R;
 
+// Matches transition.provider.tsx exactly
+const DARK_COLOR  = "#0C0D0F"; // near-black, matches dark bg with barely-there blue hint
+const LIGHT_COLOR = "#EEF3FC"; // near-white with soft blue tint
+
+// Dark-mode bg gradient (matches globals.css .dark)
+const BG_DARK  = "radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #09090b 0%, #18181b 100%)";
+// Light-mode bg gradient (matches globals.css :root)
+const BG_LIGHT = "radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%)";
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 export function IntroLoader() {
   const [mounted,         setMounted]         = useState(true);
@@ -64,8 +74,23 @@ export function IntroLoader() {
   const [circleExpanding, setCircleExpanding] = useState(false);
   const [progress,        setProgress]        = useState(0);
   const [opacity,         setOpacity]         = useState(1);
+  // Tracks whether we've hydrated on the client — prevents SSR/client mismatch
+  const [themeMounted,    setThemeMounted]    = useState(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { resolvedTheme } = useTheme();
+
+  // Only read resolvedTheme after client hydration to avoid SSR mismatch
+  useEffect(() => { setThemeMounted(true); }, []);
+
+  // Derive theme-aware values — fall back to light until client is ready
+  const isDark   = themeMounted && resolvedTheme === "dark";
+  const bgStyle  = isDark ? BG_DARK  : BG_LIGHT;
+  const glowBg   = isDark
+    ? "radial-gradient(ellipse at center, rgba(9,9,11,0.85) 0%, rgba(9,9,11,0.2) 55%, transparent 75%)"
+    : "radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 55%, transparent 75%)";
+  const wave1Color = isDark ? LIGHT_COLOR : DARK_COLOR;
+  const wave2Bg    = isDark ? BG_DARK     : BG_LIGHT;
 
   // Scroll lock
   useEffect(() => {
@@ -214,9 +239,8 @@ export function IntroLoader() {
           position: "fixed", inset: 0, zIndex: 9999,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          /* BUG FIX START - Sync container background exactly to globals.css with ambient glow */
-          background: "radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%)",
-          /* BUG FIX END */
+          /* Synced to globals.css — swaps between light and dark bg gradients */
+          background: bgStyle,
           overflow: "hidden",
           opacity,
           transition: fading ? "opacity 0.4s ease-in-out" : "none",
@@ -260,7 +284,7 @@ export function IntroLoader() {
           transform: "translate(-50%, -50%)", 
           width: "450px",
           height: "550px", 
-          background: "radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 55%, transparent 75%)",
+          background: glowBg,
           backdropFilter: "blur(12px)", 
           WebkitBackdropFilter: "blur(12px)",
           WebkitMaskImage: "radial-gradient(ellipse at center, black 35%, transparent 68%)",
@@ -271,25 +295,26 @@ export function IntroLoader() {
         }} />
         {/* BUG FIX END */}
 
-        {/* EXIT — black circle, then white, both expand from center */}
+        {/* EXIT — two expanding circles, order inverts per theme:
+              light mode: dark first → light second
+              dark  mode: light first → dark second */}
         {circleExpanding && (
           <>
-            {/* BUG FIX START - Toned down the dark blue tint to be almost pure black */ }
+            {/* Wave 1: solid color circle expanding from center */}
             <div style={{
               position: "absolute", top: "50%", left: "50%",
               width: 40, height: 40, borderRadius: "50%",
-              backgroundColor: "#020305", zIndex: 99998, pointerEvents: "none",
+              backgroundColor: wave1Color,
+              zIndex: 99998, pointerEvents: "none",
               animation: "expandCircle 2.2s both cubic-bezier(0.65,0,0.35,1)",
             }} />
-            {/* BUG FIX END */}
-            {/* BUG FIX START - Used clip-path on a full viewport div to prevent gradient scaling distortion, achieving a perfect sync with the main page background */}
+            {/* Wave 2: full-viewport div with bg gradient matching the destination page */}
             <div style={{
               position: "absolute", inset: 0,
-              background: "radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%)",
+              background: wave2Bg,
               zIndex: 99999, pointerEvents: "none",
               animation: "revealViewport 2.2s both cubic-bezier(0.65,0,0.35,1) 0.4s",
             }} />
-            {/* BUG FIX END */}
           </>
         )}
 

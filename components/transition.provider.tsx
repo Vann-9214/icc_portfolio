@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, useAnimate, stagger } from "framer-motion";
+import { useTheme } from "next-themes";
 
 type TransitionContextType = {
   navigate: (href: string) => void;
@@ -24,9 +25,10 @@ export function usePageTransition() {
 
 const ROW_COUNT = 9;
 
-// Neutral palette: warm charcoal + warm stone
-const COLOR_WAVE_1 = "#2D2B28"; // warm dark charcoal
-const COLOR_WAVE_2 = "#D6CFC4"; // warm greige / stone
+// Light mode: dark wave first, light wave second
+// Dark mode:  light wave first, dark wave second
+const DARK_COLOR  = "#0C0D0F"; // near-black, matches dark bg (#09090b) with barely-there blue hint
+const LIGHT_COLOR = "#EEF3FC"; // near-white with soft blue tint
 
 export function TransitionProvider({
   children,
@@ -36,6 +38,7 @@ export function TransitionProvider({
   const router = useRouter();
   const pathname = usePathname();
   const resolveTransition = useRef<(() => void) | null>(null);
+  const { resolvedTheme } = useTheme();
 
   const [scope, animate] = useAnimate();
   const isAnimating = useRef(false);
@@ -52,6 +55,19 @@ export function TransitionProvider({
       if (!scope.current || isAnimating.current) return;
       isAnimating.current = true;
 
+      // Determine wave order based on current theme at the moment of click
+      const isDark = resolvedTheme === "dark";
+      const wave1Color = isDark ? LIGHT_COLOR : DARK_COLOR;
+      const wave2Color = isDark ? DARK_COLOR  : LIGHT_COLOR;
+
+      // Paint stripes with the correct theme-aware colors before animating
+      document.querySelectorAll(".stripe-layer-1").forEach(
+        (s) => { (s as HTMLElement).style.backgroundColor = wave1Color; },
+      );
+      document.querySelectorAll(".stripe-layer-2").forEach(
+        (s) => { (s as HTMLElement).style.backgroundColor = wave2Color; },
+      );
+
       const stripes1 = document.querySelectorAll(".stripe-layer-1");
       const stripes2 = document.querySelectorAll(".stripe-layer-2");
 
@@ -62,7 +78,7 @@ export function TransitionProvider({
         (s) => ((s as HTMLElement).style.transformOrigin = "left center"),
       );
 
-      // Phase 1: Wave 1 (charcoal) slides in staggered
+      // Phase 1: Wave 1 slides in staggered
       animate(
         ".stripe-layer-1",
         { scaleX: 1 },
@@ -120,7 +136,7 @@ export function TransitionProvider({
 
       isAnimating.current = false;
     },
-    [animate, router, scope, pathname],
+    [animate, router, scope, pathname, resolvedTheme],
   );
 
   return (
@@ -131,22 +147,22 @@ export function TransitionProvider({
       >
         {[...Array(ROW_COUNT)].map((_, i) => (
           <div key={i} className="relative flex-1 w-full">
-            {/* Wave 1: warm charcoal */}
+            {/* Wave 1: color set imperatively at navigate time */}
             <motion.div
               className="stripe-layer-1 absolute inset-0 w-full h-full"
               initial={{ scaleX: 0 }}
               style={{
                 transformOrigin: "left center",
-                backgroundColor: COLOR_WAVE_1,
+                backgroundColor: DARK_COLOR,
               }}
             />
-            {/* Wave 2: warm stone */}
+            {/* Wave 2: color set imperatively at navigate time */}
             <motion.div
               className="stripe-layer-2 absolute inset-0 w-full h-full"
               initial={{ scaleX: 0 }}
               style={{
                 transformOrigin: "left center",
-                backgroundColor: COLOR_WAVE_2,
+                backgroundColor: LIGHT_COLOR,
               }}
             />
           </div>

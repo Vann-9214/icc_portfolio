@@ -30,7 +30,7 @@ export function Navigation() {
 
   // BUG FIX START - Changed text hover and drop-shadow glow from orange to brand blue
   const navLinkClass =
-    "relative group text-[10px] md:text-sm uppercase tracking-wide pb-0.5 md:pb-1 text-black visited:text-black hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none";
+    "relative group text-[10px] md:text-sm uppercase tracking-wide pb-0.5 md:pb-1 text-foreground hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none";
   // BUG FIX END
 
   return (
@@ -54,7 +54,7 @@ export function Navigation() {
             {/* BUG FIX START - Changed Back button text hover and underline color to brand blue */}
             <button
               onClick={() => navigate("/")}
-              className="relative group inline-flex cursor-pointer items-center gap-3 text-black hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none pb-0.5"
+              className="relative group inline-flex cursor-pointer items-center gap-3 text-foreground hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none pb-0.5"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm tracking-wide">Back</span>
@@ -66,7 +66,7 @@ export function Navigation() {
           // BUG FIX START - Removed draggable={false}
           <a
             href="/"
-            className="text-black font-serif text-lg md:text-xl tracking-tight hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-all duration-300"
+            className="text-foreground font-serif text-lg md:text-xl tracking-tight hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] transition-all duration-300"
           >
             ICC
           </a>
@@ -96,7 +96,7 @@ export function Navigation() {
                 <button
                   onClick={() => navigate("/projects")}
                   // BUG FIX START - Changed Projects hover text and glow to brand blue
-                  className="cursor-pointer bg-transparent border-none p-0 text-[10px] md:text-sm uppercase tracking-wide text-black hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none"
+                  className="cursor-pointer bg-transparent border-none p-0 text-[10px] md:text-sm uppercase tracking-wide text-foreground hover:!text-[#0F42A9] hover:drop-shadow-[0_0_8px_rgba(15,66,169,0.6)] active:!text-[#0F42A9] transition-all duration-300 focus:outline-none"
                   // BUG FIX END
                 >
                   Projects
@@ -126,7 +126,7 @@ export function Navigation() {
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex items-center justify-center p-2 rounded-md bg-zinc-200 dark:bg-zinc-800 text-black dark:text-white hover:!text-[#0F42A9] transition-all duration-300 focus:outline-none"
+              className="flex items-center justify-center p-2 rounded-md bg-zinc-200 dark:bg-zinc-800 text-foreground hover:!text-[#0F42A9] transition-all duration-300 focus:outline-none"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (

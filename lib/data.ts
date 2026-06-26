@@ -28,26 +28,26 @@ export const SPECIALTIES = [
   {
     label: "Hardware",
     icon: Cpu,
-    style: "text-amber-700 border-amber-700/30 bg-amber-700/10",
-    dot: "bg-amber-700",
+    style: "text-amber-700 dark:text-amber-400 border-amber-700/30 dark:border-amber-400/30 bg-amber-700/10 dark:bg-amber-400/10",
+    dot: "bg-amber-700 dark:bg-amber-400",
   },
   {
     label: "Software",
     icon: Code2,
-    style: "text-blue-700 border-blue-700/30 bg-blue-700/10",
-    dot: "bg-blue-700",
+    style: "text-blue-700 dark:text-blue-400 border-blue-700/30 dark:border-blue-400/30 bg-blue-700/10 dark:bg-blue-400/10",
+    dot: "bg-blue-700 dark:bg-blue-400",
   },
   {
     label: "Game Dev",
     icon: Gamepad2,
-    style: "text-purple-700 border-purple-700/30 bg-purple-700/10",
-    dot: "bg-purple-700",
+    style: "text-purple-700 dark:text-purple-400 border-purple-700/30 dark:border-purple-400/30 bg-purple-700/10 dark:bg-purple-400/10",
+    dot: "bg-purple-700 dark:bg-purple-400",
   },
   {
     label: "IoT",
     icon: Wifi,
-    style: "text-teal-700 border-teal-700/30 bg-teal-700/10",
-    dot: "bg-teal-700",
+    style: "text-teal-700 dark:text-teal-400 border-teal-700/30 dark:border-teal-400/30 bg-teal-700/10 dark:bg-teal-400/10",
+    dot: "bg-teal-700 dark:bg-teal-400",
   },
 ];
 

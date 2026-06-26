@@ -11,7 +11,7 @@ export function FixedActions() {
       {/* Social Links Oval (Hidden on Mobile) */}
       <div
         data-cursor="interactive"
-        className="hidden md:flex group cursor-default fixed bottom-10 left-10 z-[90] items-center gap-5 px-5 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-lg pointer-events-auto transition-all duration-500 hover:bg-[#0F42A9] hover:border-[#0F42A9] hover:shadow-[0_0_25px_rgba(15,66,169,0.6)]"
+        className="hidden md:flex group cursor-default fixed bottom-10 left-10 z-[90] items-center gap-5 px-5 py-3 bg-foreground/5 backdrop-blur-xl border border-foreground/10 rounded-full shadow-lg pointer-events-auto transition-all duration-500 hover:bg-[#0F42A9] hover:border-[#0F42A9] hover:shadow-[0_0_25px_rgba(15,66,169,0.6)]"
       >
         {/* BUG FIX START - Removed draggable={false} */}
         <a
@@ -66,7 +66,7 @@ export function FixedActions() {
           <motion.a
             href={HERO_DATA.socials.resume.url}
             download
-            className="group relative flex flex-col md:flex-row items-center justify-center gap-2 md:gap-2.5 md:px-5 md:py-3 md:bg-neutral-500/20 md:backdrop-blur-md md:border md:border-white/10 md:rounded-full md:shadow-lg overflow-hidden transition-all duration-300 outline-none cursor-pointer text-neutral-400 md:hover:text-white md:hover:-translate-y-1"
+            className="group relative flex flex-col md:flex-row items-center justify-center gap-2 md:gap-2.5 md:px-5 md:py-3 md:bg-foreground/10 md:backdrop-blur-md md:border md:border-foreground/10 md:rounded-full md:shadow-lg overflow-hidden transition-all duration-300 outline-none cursor-pointer text-foreground/60 md:hover:text-white md:hover:-translate-y-1"
           >
           {/* BUG FIX END */}
             {/* Desktop-only: Full solid blue color fill sliding up smoothly */}
