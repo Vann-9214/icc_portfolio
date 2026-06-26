@@ -33,6 +33,12 @@ const KEYFRAMES = `
     0%, 60%, 100% { transform: scale(0.55); opacity: 0.3;  }
     30%           { transform: scale(1.4);  opacity: 0.85; }
   }
+  /* NEW ADDITION START */
+  @keyframes revealViewport {
+    0%   { clip-path: circle(0px at 50% 50%); }
+    100% { clip-path: circle(150vw at 50% 50%); }
+  }
+  /* NEW ADDITION END */
 `;
 
 // ─── Particles ─────────────────────────────────────────────────────────────────
@@ -208,7 +214,9 @@ export function IntroLoader() {
           position: "fixed", inset: 0, zIndex: 9999,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          background: "radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #F7FBFF 55%, #EFF5FF 100%)",
+          /* BUG FIX START - Sync container background exactly to globals.css with ambient glow */
+          background: "radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%)",
+          /* BUG FIX END */
           overflow: "hidden",
           opacity,
           transition: fading ? "opacity 0.4s ease-in-out" : "none",
@@ -266,18 +274,22 @@ export function IntroLoader() {
         {/* EXIT — black circle, then white, both expand from center */}
         {circleExpanding && (
           <>
+            {/* BUG FIX START - Toned down the dark blue tint to be almost pure black */ }
             <div style={{
               position: "absolute", top: "50%", left: "50%",
               width: 40, height: 40, borderRadius: "50%",
-              backgroundColor: "#000", zIndex: 99998, pointerEvents: "none",
+              backgroundColor: "#020305", zIndex: 99998, pointerEvents: "none",
               animation: "expandCircle 2.2s both cubic-bezier(0.65,0,0.35,1)",
             }} />
+            {/* BUG FIX END */}
+            {/* BUG FIX START - Used clip-path on a full viewport div to prevent gradient scaling distortion, achieving a perfect sync with the main page background */}
             <div style={{
-              position: "absolute", top: "50%", left: "50%",
-              width: 40, height: 40, borderRadius: "50%",
-              backgroundColor: "#fff", zIndex: 99999, pointerEvents: "none",
-              animation: "expandCircle 2.2s both cubic-bezier(0.65,0,0.35,1) 0.4s",
+              position: "absolute", inset: 0,
+              background: "radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%), radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%)",
+              zIndex: 99999, pointerEvents: "none",
+              animation: "revealViewport 2.2s both cubic-bezier(0.65,0,0.35,1) 0.4s",
             }} />
+            {/* BUG FIX END */}
           </>
         )}
 

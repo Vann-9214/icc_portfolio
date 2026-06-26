@@ -137,6 +137,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* NEW ADDITION START */
+    background: radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%);
+    background-image: 
+      radial-gradient(circle, rgba(15, 66, 169, 0.09) 0%, transparent 70%),
+      radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #EEF3FC 100%);
+    /* NEW ADDITION END */
   }
   html {
     @apply font-sans scroll-smooth;
